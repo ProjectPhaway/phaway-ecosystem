@@ -1,0 +1,19 @@
+{
+  "name": "phaway-ecosystem",
+  "private": true,
+  "packageManager": "pnpm@11.20.0",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "pnpm -r --parallel --filter ./apps/* dev",
+    "dev:api": "pnpm --filter @phaway/api start:dev",
+    "dev:web": "pnpm --filter @phaway/web dev",
+    "build": "pnpm --filter @phaway/shared build && pnpm -r --filter ./apps/* build",
+    "lint": "pnpm -r lint",
+    "db:migrate": "pnpm --filter @phaway/api prisma:migrate",
+    "db:seed": "pnpm --filter @phaway/api prisma:seed",
+    "db:studio": "pnpm --filter @phaway/api prisma:studio",
+    "postinstall": "pnpm --filter @phaway/shared build"
+  }
+}
