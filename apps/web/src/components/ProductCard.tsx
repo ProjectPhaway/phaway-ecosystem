@@ -16,7 +16,7 @@ export function ProductCard({ product }: { product: ProductDto }) {
           className={`size-full object-cover transition-transform duration-500 group-hover:scale-[1.03] ${view.isSoldOut ? 'opacity-40 grayscale' : ''}`}
         />
         {product.isOnSale && !view.isSoldOut && (
-          <span className="absolute bottom-0 left-0 bg-ink px-3 py-1.5 text-xs font-bold text-paper">
+          <span className="absolute bottom-0 left-0 bg-spark px-3 py-1.5 text-xs font-bold text-paper">
             Liquidación
           </span>
         )}

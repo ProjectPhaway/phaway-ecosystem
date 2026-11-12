@@ -35,8 +35,9 @@ export function CatalogPage({ onSale = false }: { onSale?: boolean }) {
 
   return (
     <>
-      <section className={onSale ? 'bg-ink text-paper' : 'border-b border-ink'}>
-        <div className="mx-auto max-w-[90rem] px-4 pb-10 pt-14 sm:px-8 md:pt-20">
+      <section className={onSale ? 'water-dark relative overflow-hidden' : 'water border-b border-line relative overflow-hidden'}>
+        <div aria-hidden="true" className="drift pointer-events-none absolute -right-20 top-0 size-96 rounded-full bg-spark/30 blur-3xl" />
+        <div className="relative mx-auto max-w-[90rem] px-4 pb-10 pt-14 sm:px-8 md:pt-20">
           <h1 className="display text-[clamp(3rem,10vw,8rem)]">
             {onSale ? 'Liquidación' : 'Catálogo'}
           </h1>

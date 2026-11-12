@@ -2,19 +2,30 @@
 
 /*
  * Sistema visual Phaway
- * - Blanco y negro puros: el color lo ponen las prendas, no la interfaz.
- * - Una sola familia (Archivo). Los titulos van inclinados y expandidos como el wordmark PHAWAY.
+ * - Base clara en blanco y un acento azul electrico que aparece en gradientes
+ *   suaves ("fondo de agua"), botones, enlaces activos y detalles.
+ * - Tipografia Archivo para titulares pesados inclinados (como PHAWAY).
  */
 @theme {
   --font-sans: "Archivo", ui-sans-serif, system-ui, sans-serif;
 
-  --color-ink: #000000;
+  --color-ink: #0a0a0f;
   --color-paper: #ffffff;
-  --color-concrete: #ededed;
-  --color-graphite: #5c5c5c;
-  --color-line: #d4d4d4;
+  --color-cloud: #f3f6fb;
+  --color-mist: #e6ecf5;
+  --color-concrete: #ededf2;
+  --color-graphite: #4e5663;
+  --color-line: #d4dae4;
+
+  /* Acento azul electrico: usar con moderacion para que no cante */
+  --color-spark: #1d4ed8;
+  --color-spark-500: #2a68ff;
+  --color-spark-300: #a5c3ff;
+  --color-spark-100: #dce8ff;
+
   --color-whatsapp: #25d366;
   --color-alert: #b42318;
+  --color-ok: #087443;
 }
 
 @layer base {
@@ -27,17 +38,31 @@
   }
 
   :focus-visible {
-    outline: 2px solid var(--color-ink);
+    outline: 2px solid var(--color-spark);
     outline-offset: 3px;
   }
 
   ::selection {
-    background: var(--color-ink);
+    background: var(--color-spark);
     color: var(--color-paper);
   }
 }
 
 @layer components {
+  /* Fondo "de agua": degradados suaves azul-blanco. */
+  .water {
+    background:
+      radial-gradient(1200px 500px at 85% -10%, var(--color-spark-100), transparent 60%),
+      radial-gradient(900px 500px at -10% 30%, var(--color-mist), transparent 55%),
+      linear-gradient(180deg, var(--color-paper), var(--color-cloud));
+  }
+  .water-dark {
+    background:
+      radial-gradient(900px 600px at 80% 20%, color-mix(in oklab, var(--color-spark) 35%, transparent), transparent 60%),
+      linear-gradient(180deg, #000 0%, #0a0f1f 60%, #0a0a0f 100%);
+    color: var(--color-paper);
+  }
+
   /* Titular de marca: pesado, expandido e inclinado como el logo. */
   .display {
     font-weight: 900;
@@ -58,7 +83,7 @@
     font-weight: 700;
     font-size: 0.95rem;
     border: 2px solid var(--color-ink);
-    transition: background-color 120ms, color 120ms;
+    transition: background-color 120ms, color 120ms, border-color 120ms, transform 120ms;
   }
   .btn:disabled {
     opacity: 0.4;
@@ -69,8 +94,8 @@
     color: var(--color-paper);
   }
   .btn-solid:not(:disabled):hover {
-    background: var(--color-paper);
-    color: var(--color-ink);
+    background: var(--color-spark);
+    border-color: var(--color-spark);
   }
   .btn-outline {
     background: transparent;
@@ -79,6 +104,15 @@
   .btn-outline:not(:disabled):hover {
     background: var(--color-ink);
     color: var(--color-paper);
+  }
+  .btn-spark {
+    background: var(--color-spark);
+    border-color: var(--color-spark);
+    color: var(--color-paper);
+  }
+  .btn-spark:not(:disabled):hover {
+    background: var(--color-ink);
+    border-color: var(--color-ink);
   }
   .btn-whatsapp {
     background: var(--color-whatsapp);
@@ -98,23 +132,29 @@
     border: 1px solid var(--color-line);
     background: var(--color-paper);
     font-size: 0.95rem;
+    transition: border-color 120ms, box-shadow 120ms;
   }
   .field:focus {
-    border-color: var(--color-ink);
+    border-color: var(--color-spark);
     outline: none;
-    box-shadow: 0 0 0 1px var(--color-ink);
+    box-shadow: 0 0 0 1px var(--color-spark);
   }
   .field[aria-invalid="true"] {
     border-color: var(--color-alert);
   }
 
   .chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     min-height: 2.5rem;
     min-width: 2.75rem;
     padding: 0 0.9rem;
     border: 1px solid var(--color-line);
+    background: var(--color-paper);
     font-weight: 600;
     font-size: 0.875rem;
+    transition: background-color 120ms, border-color 120ms, color 120ms;
   }
   .chip[aria-pressed="true"],
   .chip[aria-current="page"] {
@@ -127,9 +167,31 @@
     text-decoration: line-through;
     cursor: not-allowed;
   }
+
+  /* Enlace decorativo con subrayado azul */
+  .link-spark {
+    position: relative;
+    font-weight: 600;
+  }
+  .link-spark::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -4px;
+    height: 2px;
+    background: var(--color-spark);
+    transform-origin: left;
+    transform: scaleX(0);
+    transition: transform 180ms;
+  }
+  .link-spark:hover::after,
+  .link-spark[aria-current="page"]::after {
+    transform: scaleX(1);
+  }
 }
 
-/* Unico momento animado: entrada del hero. */
+/* Entrada del hero */
 @keyframes wing-in {
   from {
     opacity: 0;
@@ -143,8 +205,22 @@
 .wing-in {
   animation: wing-in 900ms cubic-bezier(0.2, 0.7, 0.1, 1) both;
 }
+
+/* Blob de agua que ondula muy lento al fondo de algunas secciones */
+@keyframes slow-drift {
+  from {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  to {
+    transform: translate3d(0, -2%, 0) rotate(2deg);
+  }
+}
+.drift {
+  animation: slow-drift 12s ease-in-out infinite alternate;
+}
 @media (prefers-reduced-motion: reduce) {
-  .wing-in {
+  .wing-in,
+  .drift {
     animation: none;
   }
 }

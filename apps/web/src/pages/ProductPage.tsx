@@ -66,7 +66,7 @@ function ProductDetail({ view }: { view: ProductView }) {
   const hint = !color ? 'Elige un color' : !size ? 'Elige una talla' : !canReserve ? 'Sin stock en esa combinación' : null;
 
   return (
-    <div className="mx-auto grid max-w-[90rem] gap-10 px-4 py-8 sm:px-8 lg:grid-cols-[1.15fr_1fr] lg:gap-16 lg:py-12">
+    <div className="water relative mx-auto grid max-w-[90rem] gap-10 px-4 py-8 sm:px-8 lg:grid-cols-[1.15fr_1fr] lg:gap-16 lg:py-12">
       <div className="lg:sticky lg:top-20 lg:self-start">
         <div className="aspect-[4/5] overflow-hidden bg-concrete">
           <img src={view.images[image]} alt={product.name} className="size-full object-cover" />
@@ -102,7 +102,7 @@ function ProductDetail({ view }: { view: ProductView }) {
         <div className="mt-5 flex items-center gap-3">
           <p className="text-3xl font-bold tabular-nums">{formatPrice(price)}</p>
           {product.isOnSale && (
-            <span className="bg-ink px-3 py-1 text-xs font-bold text-paper">Liquidación</span>
+            <span className="bg-spark px-3 py-1 text-xs font-bold text-paper">Liquidación</span>
           )}
         </div>
 

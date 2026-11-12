@@ -19,8 +19,9 @@ const STEPS = [
 export function CustomPage() {
   return (
     <>
-      <section className="border-b border-ink">
-        <div className="mx-auto grid max-w-[90rem] gap-10 px-4 pb-14 pt-14 sm:px-8 md:pt-20 lg:grid-cols-[1.2fr_1fr] lg:items-end">
+      <section className="water relative overflow-hidden border-b border-line">
+        <div aria-hidden="true" className="drift pointer-events-none absolute -right-10 top-0 size-96 rounded-full bg-spark-300/60 blur-3xl" />
+        <div className="relative mx-auto grid max-w-[90rem] gap-10 px-4 pb-14 pt-14 sm:px-8 md:pt-20 lg:grid-cols-[1.2fr_1fr] lg:items-end">
           <h1 className="display text-[clamp(3rem,10vw,8.5rem)]">
             Uniformes
             <br />a medida.
@@ -48,8 +49,9 @@ export function CustomPage() {
         </ul>
       </section>
 
-      <section className="bg-ink text-paper" aria-labelledby="process-title">
-        <div className="mx-auto grid max-w-[90rem] gap-12 px-4 py-20 sm:px-8 lg:grid-cols-2">
+      <section className="water-dark relative overflow-hidden" aria-labelledby="process-title">
+        <div aria-hidden="true" className="drift pointer-events-none absolute left-0 top-10 size-96 rounded-full bg-spark/40 blur-3xl" />
+        <div className="relative mx-auto grid max-w-[90rem] gap-12 px-4 py-20 sm:px-8 lg:grid-cols-2">
           <div>
             <h2 id="process-title" className="display text-5xl md:text-6xl">Así trabajamos</h2>
             <ol className="mt-10 divide-y divide-paper/25 border-y border-paper/25">
