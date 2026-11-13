@@ -3,7 +3,9 @@ import { AdminLayout } from './admin/AdminLayout';
 import { LoginPage } from './admin/LoginPage';
 import { ProductFormPage } from './admin/ProductFormPage';
 import { ProductsListPage } from './admin/ProductsListPage';
-import { SalesPage } from './admin/SalesPage';
+import { NewOrderPage } from './admin/NewOrderPage';
+import { OrderDetailPage } from './admin/OrderDetailPage';
+import { OrdersPage } from './admin/OrdersPage';
 import { CatalogPage } from './pages/CatalogPage';
 import { ContactPage } from './pages/ContactPage';
 import { CustomPage } from './pages/CustomPage';
@@ -35,7 +37,9 @@ export const router = createBrowserRouter([
       { path: 'productos', element: <ProductsListPage /> },
       { path: 'productos/nuevo', element: <ProductFormPage /> },
       { path: 'productos/:id', element: <ProductFormPage /> },
-      { path: 'ventas', element: <SalesPage /> },
+      { path: 'ventas', element: <OrdersPage /> },
+      { path: 'ventas/nuevo', element: <NewOrderPage /> },
+      { path: 'ventas/:id', element: <OrderDetailPage /> },
     ],
   },
 ]);

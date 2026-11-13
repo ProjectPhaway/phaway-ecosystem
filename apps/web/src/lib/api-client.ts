@@ -1,6 +1,9 @@
 import type {
   CategoryDto,
   LoginResponse,
+  OrderDto,
+  OrderInput,
+  OrderStatus,
   ProductDto,
   ProductInput,
   SessionUser,
@@ -104,6 +107,27 @@ export class ApiClient {
       'DELETE',
       `/admin/products/${id}`,
     );
+  }
+
+  // ---------- Pedidos (admin) ----------
+
+  adminListOrders(status?: OrderStatus) {
+    return this.request<OrderDto[]>(
+      'GET',
+      `/admin/orders${status ? `?status=${status}` : ''}`,
+    );
+  }
+
+  adminCreateOrder(input: OrderInput) {
+    return this.request<OrderDto>('POST', '/admin/orders', input);
+  }
+
+  adminChangeOrderStatus(id: string, status: OrderStatus) {
+    return this.request<OrderDto>('PATCH', `/admin/orders/${id}/status`, { status });
+  }
+
+  adminUpdateOrderPayment(id: string, paidAmount: string) {
+    return this.request<OrderDto>('PATCH', `/admin/orders/${id}/payment`, { paidAmount });
   }
 
   async uploadImage(file: File): Promise<string> {

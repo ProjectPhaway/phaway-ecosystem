@@ -5,7 +5,51 @@
 
 export const WHATSAPP_SALES_NUMBER = '51965769340';
 
-export type OrderStatus = 'pending' | 'confirmed' | 'delivered' | 'cancelled';
+export const ORDER_STATUSES = ['pending', 'confirmed', 'delivered', 'cancelled'] as const;
+export type OrderStatus = (typeof ORDER_STATUSES)[number];
+
+export interface OrderItemInput {
+  variantId: string;
+  quantity: number;
+}
+
+export interface OrderInput {
+  customerName: string;
+  customerPhone: string;
+  notes?: string;
+  items: OrderItemInput[];
+  paidAmount?: string;
+  confirm?: boolean;
+}
+
+export interface OrderItemDto {
+  id: string;
+  quantity: number;
+  unitPrice: string;
+  snapshotName: string;
+  variant: {
+    id: string;
+    size: string;
+    color: string;
+    sku: string;
+    product: { id: string; name: string; slug: string; mainImageUrl: string };
+  };
+}
+
+export interface OrderDto {
+  id: string;
+  orderNumber: string;
+  customerName: string;
+  customerPhone: string;
+  status: OrderStatus;
+  totalAmount: string;
+  paidAmount: string;
+  notes: string | null;
+  items: OrderItemDto[];
+  createdAt: string;
+  confirmedAt: string | null;
+  deliveredAt: string | null;
+}
 export type UserRole = 'admin' | 'marketing';
 
 export interface CategoryDto {

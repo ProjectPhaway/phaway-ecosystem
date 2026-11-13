@@ -52,12 +52,22 @@ E2E del admin: exportar `E2E_ADMIN_EMAIL` / `E2E_ADMIN_PASSWORD` (mismos valores
 ## Arquitectura: monolito modular
 
 Modulos en `apps/api/src/`:
-- Hechos: `prisma` (global), `auth` (login JWT, `JwtAuthGuard`, limite 5/min), `catalog` (publico `/api/categories`, `/api/products`; admin `/api/admin/products`), `uploads` (`/api/admin/uploads`, valida magic bytes, disco local en `apps/api/uploads/` servido en `/uploads`; driver R2 pendiente para deploy).
-- Pendientes Fase 1: `orders` (marcar vendido + descuento de stock).
+- Hechos: `prisma` (global), `auth` (login JWT, `JwtAuthGuard`, limite 5/min), `catalog` (publico `/api/categories`, `/api/products`; admin `/api/admin/products`), `uploads` (`/api/admin/uploads`, valida magic bytes, disco local en `apps/api/uploads/` servido en `/uploads`; driver R2 pendiente para deploy), `orders` (admin `/api/admin/orders`: crear + cambiar estado + registrar pago; `OrderStatusPolicy` es logica pura testeable sin Prisma).
+- Pendientes: catalogo masivo (CSV/PDF), reportes, Fase 3+.
 - Futuro: `inventory`, `production`, `crm`.
 - Deuda conocida: imagenes subidas en un formulario que luego se cancela quedan huerfanas en `uploads/` (agregar limpieza al pasar a R2).
 
 Frontend (POO donde aporta): `ApiClient` (unico acceso HTTP), `AuthSession` (sesion observable), `ProductView` (logica de tallas/colores/stock/precio). Los componentes usan hooks de `lib/queries.ts`, nunca `fetch` directo.
+
+### Flujo de pedidos (Fase 1)
+
+Estados: `pending → confirmed → delivered`; cualquiera no final puede ir a `cancelled`.
+- `pending → confirmed`: **descuenta stock** (updateMany condicional `stock >= qty` en transaccion; si no alcanza responde 409 y nada se aplica).
+- `confirmed → cancelled`: **devuelve stock**.
+- Resto: solo cambia estado/sella fecha.
+- `OrderStatusPolicy` (en `orders/`) centraliza las transiciones y no importa Prisma, asi Jest la testea sin cargar el cliente generado (10 tests). La UI del admin duplica esa tabla en `apps/web/src/admin/order-helpers.ts`.
+- Numero de pedido: `PH-YYMMDD-XXXX` (fecha + 4 hex), dictable por telefono.
+- Dinero: siempre `string` en DTOs y props React; convertir a `Prisma.Decimal` o `Number` solo al calcular.
 
 Convenciones por modulo:
 ```
@@ -73,22 +83,40 @@ src/<modulo>/
 - Dinero: `Decimal` en BD, `string` en DTOs JSON. Nunca `number` para precios.
 
 ### Regla de stock (critica)
-Al pasar un `Order` a `confirmed`, en **una transaccion Prisma** se descuenta `variant.stock` por cada `OrderItem.quantity`. Si algun stock queda negativo, se revierte todo y se responde 409.
+Al pasar un `Order` a `confirmed`, en **una transaccion Prisma** se descuenta `variant.stock` por cada `OrderItem.quantity`. Si algun stock queda negativo, se revierte todo y se responde 409. Implementado con `updateMany({ where: { stock: { gte: qty } } })` para que incluso dos confirmaciones simultaneas no bajen el stock a negativo.
 
 ## Frontend
 
-- Rutas en `apps/web/src/router.tsx`. Publicas dentro de `Layout` (header, footer, boton WhatsApp flotante). Admin fuera de `Layout`.
-- Tokens de color en `apps/web/src/index.css` (`@theme`): `ink`, `paper`, `mute`, `line`, `whatsapp`.
+- Rutas en `apps/web/src/router.tsx`. Publicas dentro de `Layout` (header, footer, boton WhatsApp flotante). Admin bajo `AdminLayout` (`/admin/productos`, `/admin/ventas[/nuevo|/:id]`).
+- Tokens de color en `apps/web/src/index.css` (`@theme`): `ink`, `paper`, `cloud`, `mist`, `concrete`, `graphite`, `line`, `spark` (azul electrico, acento), `whatsapp`, `alert`, `ok`.
+- Fondos "water" / "water-dark": utilidades de gradientes suaves con blobs (`.drift`). Son el envolvente visual del sitio (plan § 9, ajuste con feedback del cliente).
 - Logos: `public/brand/phaway-negro.png` (fondos claros) y `phaway-blanco.png` (fondos oscuros).
+- Datos editables en `apps/web/src/config.ts`: `CONTACT` (WhatsApp, horario), `STORE` (direccion Gamarra, embed del mapa), `SOCIAL` (IG `phaway_ropadeportiva`, FB `RopaPhaway`, TikTok `phaway_sport`), `SHIPPING_PARTNERS` (Shalom, Olva, Cruz del Sur).
 - Mensaje de reserva: usar `buildWhatsAppReservationMessage` + `buildWhatsAppUrl` de `@phaway/shared` (incluye link al producto).
+- Formulario admin de productos: la web comprime fotos a WEBP ~1800px antes de subir (`image-compressor.ts`), hasta 30 MB de entrada; el API mantiene limite de 5 MB como proteccion.
+- Pedidos: `OrdersPage`, `NewOrderPage`, `OrderDetailPage` + helpers de estados/colores en `order-helpers.ts`. "Confirmar" descuenta stock y "Cancelar confirmado" lo devuelve (ver flujo de pedidos arriba).
+- Guia de tallas: componente `SizeGuide` con `<dialog>` nativo. Imagen en `public/catalog/guia-tallas.webp`. Enlace en ficha de producto y footer.
+- Categorias en el inicio: `CategoryTile` muestra fotos reales y rota entre modelos al hover (inspirado en win.com.pe). Grid responsive 2/3/4 columnas.
 - Diseno visual: usar la skill `frontend-design`.
+- Responsive: todo revisado en escritorio (1440) y Pixel 7 con Playwright screenshots. Mantener siempre breakpoints de Tailwind (`sm`/`md`/`lg`) y evitar anchos fijos.
 
 ## Que NO hacer
 
-- No commitear `.env`, credenciales ni `src/generated/`.
+- No commitear `.env`, credenciales, `src/generated/`, `apps/api/uploads/*`, ni PDFs grandes (`apps/web/public/catalog/*.pdf` esta ignorado; en deploy va a R2).
 - No poner logica de negocio en controllers ni queries Prisma en el frontend.
 - No usar `number` para dinero. No usar `@prisma/client` directo.
+- No subir imagenes pesadas al repo: la web del admin ya comprime en el navegador. Las fotos de productos viven en `apps/api/uploads/` (local) o R2 (prod).
 - No agregar dependencias sin necesidad; pnpm 11 bloquea build scripts: si una dependencia nativa lo necesita, agregarla a `allowBuilds` en `pnpm-workspace.yaml` y justificar.
+- No subir commits al repo sin confirmar con el usuario (hablamos de preferencia explicita: hacer `git commit` cada vez pero esperar su OK antes del `git push`).
+
+## Estado del trabajo (actualizar al cerrar un commit grande)
+
+- Fase 0 y Fase 1 del plan `PHAWAY_PLAN.md` ya avanzadas: monorepo, catalogo publico + admin, uploads, pedidos con descuento de stock.
+- Categorias en seed: Camisetas, Shorts, Chalecos, **Buzos** (Fase 1), Medias, Balones, Guantes de arquero.
+- Datos de demo en BD local: 10+ productos reales (5 camisetas 3D, 2 guantes, 3 buzos extraidos del PDF). Precios son estimados; el admin los ajusta.
+- Tests E2E (Playwright): 8 verdes cubriendo home publico, flujo admin producto completo y flujo admin pedido con descuento de stock. CI de GitHub Actions (lint + build + types) en verde.
+- Pendiente mencionado por el usuario: reunion con gerente (grabada) para recoger ideas sobre el flujo de ventas; luego iterar.
+- Pendiente de diseno: escena tipo hannahlab.com (scroll-triggered intro) en el hero; aun no implementado, requiere decidir cuanta animacion queremos.
 
 ## Checklist antes de crear una tabla nueva
 

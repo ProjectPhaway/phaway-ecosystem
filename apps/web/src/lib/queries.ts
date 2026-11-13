@@ -1,4 +1,4 @@
-import type { ProductInput } from '@phaway/shared';
+import type { OrderInput, OrderStatus, ProductInput } from '@phaway/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSyncExternalStore } from 'react';
 import { api, type ProductFilters } from './api-client';
@@ -11,6 +11,7 @@ export const queryKeys = {
   product: (slug: string) => ['product', slug] as const,
   adminProducts: ['admin', 'products'] as const,
   adminProduct: (id: string) => ['admin', 'product', id] as const,
+  adminOrders: (status?: OrderStatus) => ['admin', 'orders', status ?? 'all'] as const,
 };
 
 export function useSession() {
@@ -76,5 +77,49 @@ export function useDeleteProduct() {
       void qc.invalidateQueries({ queryKey: ['products'] });
       void qc.invalidateQueries({ queryKey: ['admin'] });
     },
+  });
+}
+
+/** --- Pedidos (admin) --- */
+export function useAdminOrders(status?: OrderStatus) {
+  return useQuery({
+    queryKey: queryKeys.adminOrders(status),
+    queryFn: () => api.adminListOrders(status),
+    refetchOnWindowFocus: true,
+  });
+}
+
+export function useCreateOrder() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (input: OrderInput) => api.adminCreateOrder(input),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ['admin'] });
+      // Al crear confirmado baja el stock => catálogo público también cambia.
+      void qc.invalidateQueries({ queryKey: ['products'] });
+      void qc.invalidateQueries({ queryKey: ['product'] });
+    },
+  });
+}
+
+export function useChangeOrderStatus() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, status }: { id: string; status: OrderStatus }) =>
+      api.adminChangeOrderStatus(id, status),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ['admin'] });
+      void qc.invalidateQueries({ queryKey: ['products'] });
+      void qc.invalidateQueries({ queryKey: ['product'] });
+    },
+  });
+}
+
+export function useUpdateOrderPayment() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, paidAmount }: { id: string; paidAmount: string }) =>
+      api.adminUpdateOrderPayment(id, paidAmount),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: ['admin'] }),
   });
 }
