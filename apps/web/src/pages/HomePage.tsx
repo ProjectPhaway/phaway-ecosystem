@@ -1,3 +1,4 @@
+import type { ProductDto } from '@phaway/shared';
 import { buildWhatsAppUrl } from '@phaway/shared';
 import { Link } from 'react-router';
 import {
@@ -13,6 +14,7 @@ import {
   IconTiktok,
   IconTruck,
 } from '../components/icons';
+import { CategoryTile } from '../components/CategoryTile';
 import { ProductCard } from '../components/ProductCard';
 import { CONTACT, SHIPPING_PARTNERS, SOCIAL, STORE } from '../config';
 import { useCategories, useProducts } from '../lib/queries';
@@ -142,26 +144,28 @@ function SaleStrip() {
 
 function Categories() {
   const { data: categories } = useCategories();
+  const { data: products } = useProducts({});
   if (!categories?.length) return null;
 
+  const byCategory = new Map<string, ProductDto[]>();
+  for (const p of products ?? []) {
+    const list = byCategory.get(p.category.slug) ?? [];
+    list.push(p);
+    byCategory.set(p.category.slug, list);
+  }
+
   return (
-    <section className="water relative mx-auto max-w-[90rem] px-4 py-20 sm:px-8" aria-labelledby="cat-title">
-      <h2 id="cat-title" className="display text-5xl md:text-6xl">
-        Compra por tipo
-      </h2>
-      <ul className="mt-10 grid grid-cols-2 border-l border-t border-ink md:grid-cols-3">
+    <section className="water relative mx-auto max-w-[90rem] px-4 py-16 sm:px-8 md:py-20" aria-labelledby="cat-title">
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <h2 id="cat-title" className="display text-4xl md:text-5xl">Compra por tipo</h2>
+        <Link to="/catalogo" className="link-spark text-sm font-semibold">
+          Ver todo el catálogo
+        </Link>
+      </div>
+      <ul className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 lg:gap-4">
         {categories.map((c) => (
-          <li key={c.id} className="border-b border-r border-ink">
-            <Link
-              to={`/catalogo?categoria=${c.slug}`}
-              className="group relative flex aspect-[3/2] items-end overflow-hidden p-4 transition-colors hover:bg-ink hover:text-paper sm:p-6 md:aspect-[2/1]"
-            >
-              <span className="relative z-10 display text-[clamp(1.6rem,4.2vw,3.4rem)]">
-                {c.name}
-              </span>
-              {/* Trazo diagonal "animalistico" que se revela al hover */}
-              <span aria-hidden="true" className="pointer-events-none absolute -right-10 -top-8 h-[160%] w-40 rotate-12 bg-spark/0 transition-colors group-hover:bg-spark/20" />
-            </Link>
+          <li key={c.id}>
+            <CategoryTile category={c} products={byCategory.get(c.slug) ?? []} />
           </li>
         ))}
       </ul>

@@ -200,11 +200,11 @@ function ProductForm({ id, initial, slug }: { id?: string; initial: FormValues; 
               Una fila por cada combinación. El precio especial es opcional: si lo dejas vacío se usa el precio del producto.
             </p>
           </div>
-          <div className="flex items-end gap-2">
-            <label>
-              <span className="text-sm font-semibold">Color</span>
+          <div className="flex w-full flex-wrap items-end gap-3 sm:w-auto">
+            <label className="flex-1 sm:flex-none">
+              <span className="mb-1.5 block text-sm font-semibold">Color</span>
               <input
-                className="field mt-1 w-36"
+                className="field w-full sm:w-36"
                 value={quickColor}
                 onChange={(e) => setQuickColor(e.target.value)}
                 onKeyDown={(e) => {
