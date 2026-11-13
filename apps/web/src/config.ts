@@ -24,11 +24,14 @@ export const STORE = {
   mapLink: 'https://www.google.com/maps/search/Galeria+Las+Mercedes+Gamarra+La+Victoria+Lima',
 } as const;
 
-/** Redes sociales (el valor real va en VITE_SOCIAL_* o se edita aqui). */
+/** Redes sociales oficiales de Phaway. */
 export const SOCIAL = {
-  instagram: import.meta.env.VITE_SOCIAL_IG ?? 'https://instagram.com/phaway',
-  facebook: import.meta.env.VITE_SOCIAL_FB ?? 'https://facebook.com/phaway',
-  tiktok: import.meta.env.VITE_SOCIAL_TT ?? 'https://tiktok.com/@phaway',
+  instagram:
+    import.meta.env.VITE_SOCIAL_IG ?? 'https://www.instagram.com/phaway_ropadeportiva',
+  facebook:
+    import.meta.env.VITE_SOCIAL_FB ?? 'https://www.facebook.com/RopaPhaway/',
+  tiktok:
+    import.meta.env.VITE_SOCIAL_TT ?? 'https://www.tiktok.com/@phaway_sport',
 } as const;
 
 /** Agencias con las que se despacha. */
