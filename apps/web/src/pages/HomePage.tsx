@@ -16,6 +16,7 @@ import {
 } from '../components/icons';
 import { CategoryTile } from '../components/CategoryTile';
 import { ProductCard } from '../components/ProductCard';
+import { ScrollIntro } from '../components/ScrollIntro';
 import { CONTACT, SHIPPING_PARTNERS, SOCIAL, STORE } from '../config';
 import { useCategories, useProducts } from '../lib/queries';
 
@@ -24,6 +25,7 @@ const QUOTE_MESSAGE = 'Hola Phaway, quiero cotizar uniformes personalizados para
 export function HomePage() {
   return (
     <>
+      <ScrollIntro />
       <Hero />
       <SaleStrip />
       <Categories />

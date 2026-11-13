@@ -116,7 +116,7 @@ Al pasar un `Order` a `confirmed`, en **una transaccion Prisma** se descuenta `v
 - Datos de demo en BD local: 10+ productos reales (5 camisetas 3D, 2 guantes, 3 buzos extraidos del PDF). Precios son estimados; el admin los ajusta.
 - Tests E2E (Playwright): 8 verdes cubriendo home publico, flujo admin producto completo y flujo admin pedido con descuento de stock. CI de GitHub Actions (lint + build + types) en verde.
 - Pendiente mencionado por el usuario: reunion con gerente (grabada) para recoger ideas sobre el flujo de ventas; luego iterar.
-- Pendiente de diseno: escena tipo hannahlab.com (scroll-triggered intro) en el hero; aun no implementado, requiere decidir cuanta animacion queremos.
+- Intro scroll-triggered (estilo hannahlab.com) hecha con **GSAP 3 + ScrollTrigger** en `apps/web/src/components/ScrollIntro.tsx`. Usa la pieza grafica azul `public/brand/pieza-grafica-1.webp` (desktop) y `-m.webp` (mobile ≤640px). Pinea la escena durante 80% de 1 viewport y hace fade-out del titular + veil blanco. Respeta `prefers-reduced-motion`. **Semantica**: el H1 del home sigue siendo "Pasión por el deporte." (Hero); el "PHAWAY" grande del intro es `<p>` decorativo.
 
 ## Checklist antes de crear una tabla nueva
 
