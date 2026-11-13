@@ -1,6 +1,7 @@
 import { buildWhatsAppReservationMessage, buildWhatsAppUrl } from '@phaway/shared';
 import { useState } from 'react';
 import { Link, useParams } from 'react-router';
+import { SizeGuideLink } from '../components/SizeGuide';
 import { ErrorNotice, Notice } from '../components/States';
 import { SITE_URL } from '../config';
 import { ApiError } from '../lib/api-client';
@@ -126,7 +127,10 @@ function ProductDetail({ view }: { view: ProductView }) {
             </fieldset>
 
             <fieldset className="mt-6">
-              <legend className="font-semibold">Talla</legend>
+              <div className="flex items-baseline justify-between">
+                <legend className="font-semibold">Talla</legend>
+                <SizeGuideLink className="link-spark text-sm font-semibold" />
+              </div>
               <div className="mt-3 flex flex-wrap gap-2">
                 {view.sizes.map((s) => {
                   const stock = view.stockFor(s, color);

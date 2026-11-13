@@ -9,6 +9,7 @@ import {
   IconTiktok,
   IconUser,
 } from '../components/icons';
+import { SizeGuideLink } from '../components/SizeGuide';
 import { WhatsAppButton } from '../components/WhatsAppButton';
 import { CONTACT, SOCIAL, STORE } from '../config';
 import { useSession } from '../lib/queries';
@@ -174,6 +175,7 @@ function Footer() {
 
         <FooterCol title="Ayuda">
           <Link to="/contacto">Envíos y pagos</Link>
+          <SizeGuideLink className="text-left hover:underline" />
           <Link to="/contacto#reclamaciones">Libro de Reclamaciones</Link>
           <Link to="/admin" className="link-spark inline-flex items-center gap-1.5">
             <IconUser className="size-4" />

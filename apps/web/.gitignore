@@ -29,3 +29,6 @@ public/media/*.mp4
 # Playwright
 playwright-report/
 test-results/
+
+# PDFs grandes de catalogo (local; en produccion van a Cloudflare R2)
+public/catalog/*.pdf

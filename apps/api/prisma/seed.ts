@@ -18,9 +18,10 @@ const CATEGORIES = [
   { slug: 'camisetas', name: 'Camisetas', sortOrder: 1 },
   { slug: 'shorts', name: 'Shorts', sortOrder: 2 },
   { slug: 'chalecos', name: 'Chalecos', sortOrder: 3 },
-  { slug: 'medias', name: 'Medias', sortOrder: 4 },
-  { slug: 'balones', name: 'Balones', sortOrder: 5 },
-  { slug: 'guantes-arquero', name: 'Guantes de arquero', sortOrder: 6 },
+  { slug: 'buzos', name: 'Buzos', sortOrder: 4 },
+  { slug: 'medias', name: 'Medias', sortOrder: 5 },
+  { slug: 'balones', name: 'Balones', sortOrder: 6 },
+  { slug: 'guantes-arquero', name: 'Guantes de arquero', sortOrder: 7 },
 ];
 
 const USERS: { envPrefix: string; role: UserRole; name: string }[] = [

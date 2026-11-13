@@ -49,6 +49,31 @@ export function CustomPage() {
         </ul>
       </section>
 
+      <section className="mx-auto max-w-[90rem] px-4 pb-16 pt-4 sm:px-8" aria-labelledby="catalog-title">
+        <div className="water flex flex-col items-start gap-6 border border-line p-6 sm:flex-row sm:items-center sm:p-8">
+          <div className="grid size-14 shrink-0 place-items-center rounded-full border border-spark/40 bg-spark-100 text-spark">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="size-7" aria-hidden="true">
+              <path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" />
+              <path d="M14 3v6h6M12 13v6m-3-3 3 3 3-3" />
+            </svg>
+          </div>
+          <div className="flex-1">
+            <h2 id="catalog-title" className="text-xl font-bold">Catálogo de buzos y conjuntos</h2>
+            <p className="mt-1 text-graphite">
+              Descarga el PDF con nuestros modelos de buzo deportivo, telas y combinaciones.
+            </p>
+          </div>
+          <a
+            href="/catalog/catalogo-buzos-phaway.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-spark"
+          >
+            Descargar PDF
+          </a>
+        </div>
+      </section>
+
       <section className="water-dark relative overflow-hidden" aria-labelledby="process-title">
         <div aria-hidden="true" className="drift pointer-events-none absolute left-0 top-10 size-96 rounded-full bg-spark/40 blur-3xl" />
         <div className="relative mx-auto grid max-w-[90rem] gap-12 px-4 py-20 sm:px-8 lg:grid-cols-2">
