@@ -22,3 +22,15 @@ Thumbs.db
 # tests
 playwright-report/
 test-results/
+
+# Documentacion interna del equipo (plan, ecosistema, preguntas, convenciones).
+# No se sube al repo: solo README.md.
+*.md
+!README.md
+
+# Archivos y caches de IDEs y asistentes locales.
+.claude/
+.claudeignore
+.claude-code/
+.aider*
+CLAUDE.md
