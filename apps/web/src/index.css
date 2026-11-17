@@ -37,6 +37,12 @@
     text-rendering: optimizeLegibility;
   }
 
+  /* El intro scroll-triggered oculta el chrome (barra superior + header)
+     mientras está activo para ocupar el 100% del primer viewport. */
+  :root.phaway-intro-active [data-chrome] {
+    display: none;
+  }
+
   :focus-visible {
     outline: 2px solid var(--color-spark);
     outline-offset: 3px;
@@ -127,20 +133,36 @@
 
   .field {
     width: 100%;
-    min-height: 2.75rem;
+    min-height: 2.5rem;
     padding: 0.5rem 0.75rem;
     border: 1px solid var(--color-line);
+    border-radius: 0.5rem;
     background: var(--color-paper);
-    font-size: 0.95rem;
+    font-size: 0.9375rem;
+    line-height: 1.4;
     transition: border-color 120ms, box-shadow 120ms;
+  }
+  .field::placeholder {
+    color: color-mix(in srgb, var(--color-graphite) 70%, transparent);
+  }
+  .field:hover:not(:focus):not([aria-invalid="true"]):not(:disabled) {
+    border-color: color-mix(in srgb, var(--color-graphite) 40%, var(--color-line));
   }
   .field:focus {
     border-color: var(--color-spark);
     outline: none;
-    box-shadow: 0 0 0 1px var(--color-spark);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-spark) 22%, transparent);
   }
   .field[aria-invalid="true"] {
     border-color: var(--color-alert);
+  }
+  .field[aria-invalid="true"]:focus {
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-alert) 22%, transparent);
+  }
+  .field:disabled {
+    background: var(--color-concrete);
+    color: var(--color-graphite);
+    cursor: not-allowed;
   }
 
   .chip {

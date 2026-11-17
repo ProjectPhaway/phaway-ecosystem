@@ -6,6 +6,7 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -16,6 +17,7 @@ import {
 } from './uploads.service';
 
 @UseGuards(JwtAuthGuard)
+@ApiTags('uploads')
 @Controller('admin/uploads')
 export class UploadsController {
   constructor(private readonly uploads: UploadsService) {}

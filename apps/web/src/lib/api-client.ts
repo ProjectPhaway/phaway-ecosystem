@@ -1,12 +1,22 @@
 import type {
+  AdminUserDto,
   CategoryDto,
+  DailySalesPoint,
+  DashboardKpis,
   LoginResponse,
+  LowStockRow,
   OrderDto,
   OrderInput,
   OrderStatus,
+  OrdersByStatusRow,
+  PendingInvitationDto,
   ProductDto,
   ProductInput,
+  RevenueByCategoryRow,
   SessionUser,
+  SizeGuide,
+  TopProductRow,
+  UserRole,
 } from '@phaway/shared';
 import { API_URL } from '../config';
 import { authSession, type AuthSession } from './auth-session';
@@ -135,6 +145,97 @@ export class ApiClient {
     form.append('file', file);
     const { url } = await this.request<{ url: string }>('POST', '/admin/uploads', form);
     return url;
+  }
+
+  // ---------- Cuenta ----------
+
+  async changePassword(currentPassword: string, newPassword: string): Promise<void> {
+    await this.request<void>('POST', '/account/change-password', { currentPassword, newPassword });
+  }
+
+  async forgotPassword(email: string): Promise<void> {
+    await this.request<{ queued: true }>('POST', '/auth/forgot-password', { email });
+  }
+
+  async resetPassword(token: string, newPassword: string): Promise<void> {
+    await this.request<void>('POST', '/auth/reset-password', { token, newPassword });
+  }
+
+  async acceptInvitation(token: string, password: string, name?: string): Promise<void> {
+    await this.request<void>('POST', '/auth/accept-invitation', { token, password, name });
+  }
+
+  // ---------- Usuarios del panel (admin) ----------
+
+  listUsers(): Promise<AdminUserDto[]> {
+    return this.request<AdminUserDto[]>('GET', '/admin/users');
+  }
+
+  listInvitations(): Promise<PendingInvitationDto[]> {
+    return this.request<PendingInvitationDto[]>('GET', '/admin/users/invitations');
+  }
+
+  async inviteUser(email: string, name: string, role: UserRole): Promise<void> {
+    await this.request<{ queued: true }>('POST', '/admin/users/invitations', { email, name, role });
+  }
+
+  async resendInvitation(id: string): Promise<void> {
+    await this.request<{ queued: true }>('POST', `/admin/users/invitations/${id}/resend`);
+  }
+
+  async cancelInvitation(id: string): Promise<void> {
+    await this.request<void>('DELETE', `/admin/users/invitations/${id}`);
+  }
+
+  async setUserStatus(id: string, isActive: boolean): Promise<AdminUserDto> {
+    return this.request<AdminUserDto>('PATCH', `/admin/users/${id}/status`, { isActive });
+  }
+
+  async deleteUser(id: string): Promise<void> {
+    await this.request<void>('DELETE', `/admin/users/${id}`);
+  }
+
+  // ---------- Analytics ----------
+
+  dashboardKpis(threshold?: number): Promise<DashboardKpis> {
+    const qs = threshold ? `?threshold=${threshold}` : '';
+    return this.request<DashboardKpis>('GET', `/admin/analytics/kpis${qs}`);
+  }
+
+  dailySales(days: number): Promise<DailySalesPoint[]> {
+    return this.request<DailySalesPoint[]>('GET', `/admin/analytics/daily-sales?days=${days}`);
+  }
+
+  topProducts(days: number, limit = 5): Promise<TopProductRow[]> {
+    return this.request<TopProductRow[]>(
+      'GET',
+      `/admin/analytics/top-products?days=${days}&limit=${limit}`,
+    );
+  }
+
+  ordersByStatus(): Promise<OrdersByStatusRow[]> {
+    return this.request<OrdersByStatusRow[]>('GET', '/admin/analytics/orders-by-status');
+  }
+
+  revenueByCategory(days: number): Promise<RevenueByCategoryRow[]> {
+    return this.request<RevenueByCategoryRow[]>(
+      'GET',
+      `/admin/analytics/revenue-by-category?days=${days}`,
+    );
+  }
+
+  lowStock(threshold = 3): Promise<LowStockRow[]> {
+    return this.request<LowStockRow[]>('GET', `/admin/analytics/low-stock?threshold=${threshold}`);
+  }
+
+  // ---------- Ajustes ----------
+
+  async getSizeGuide(): Promise<SizeGuide> {
+    return this.request<SizeGuide>('GET', '/settings/size-guide');
+  }
+
+  async setSizeGuide(url: string | null): Promise<SizeGuide> {
+    return this.request<SizeGuide>('PUT', '/admin/settings/size-guide', { url });
   }
 
   // ---------- Base ----------

@@ -21,9 +21,11 @@ test('registrar pedido descuenta stock y actualiza estado', async ({ page }) => 
   await page.getByLabel('Correo').fill(EMAIL);
   await page.getByLabel('Contraseña').fill(PASSWORD);
   await page.getByRole('button', { name: 'Entrar' }).click();
-  await expect(page.getByRole('heading', { name: 'Productos' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Inicio' })).toBeVisible();
 
   // --- producto con 1 variante y stock 5
+  await page.getByRole('link', { name: 'Productos', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Productos' })).toBeVisible();
   await page.getByRole('link', { name: 'Nuevo producto' }).click();
   await page.locator('input[type=file]').setInputFiles(IMAGE);
   await page.getByAltText('Foto principal').waitFor();

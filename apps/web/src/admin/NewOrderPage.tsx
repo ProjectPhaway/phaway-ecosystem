@@ -1,8 +1,11 @@
 import type { OrderInput, ProductDto, ProductVariantDto } from '@phaway/shared';
+import { UserPlus } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { formatPrice } from '../lib/product-view';
 import { useAdminProducts, useCreateOrder } from '../lib/queries';
+import { CustomerModal, type CustomerDraft } from './ui/CustomerModal';
+import { FormField, TextArea, TextInput } from './ui/FormField';
 
 interface Line {
   variant: ProductVariantDto;
@@ -25,6 +28,17 @@ export function NewOrderPage() {
   const [paidAmount, setPaidAmount] = useState('');
   const [confirm, setConfirm] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [customerOpen, setCustomerOpen] = useState(false);
+
+  const onSaveCustomer = (c: CustomerDraft) => {
+    setCustomerName(c.name);
+    setCustomerPhone(c.phone);
+    // Las notas del cliente se agregan a las del pedido sin pisar lo ya escrito.
+    const extras = [c.dni && `DNI: ${c.dni}`, c.address && `Direccion: ${c.address}`, c.notes]
+      .filter(Boolean)
+      .join(' · ');
+    if (extras) setNotes((prev) => (prev ? `${prev}\n${extras}` : extras));
+  };
 
   const results = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -178,36 +192,59 @@ export function NewOrderPage() {
 
         {/* Cliente + pago */}
         <section aria-labelledby="customer-title" className="space-y-5">
-          <h2 id="customer-title" className="text-lg font-bold">2. Cliente y pago</h2>
+          <div className="flex items-center justify-between gap-3">
+            <h2 id="customer-title" className="text-lg font-bold">2. Cliente y pago</h2>
+            <button
+              type="button"
+              onClick={() => setCustomerOpen(true)}
+              className="inline-flex items-center gap-1.5 rounded-md border border-line bg-paper px-3 py-1.5 text-sm font-semibold text-ink hover:border-spark hover:text-spark"
+            >
+              <UserPlus className="size-4" />
+              Nuevo cliente
+            </button>
+          </div>
 
-          <label className="block">
-            <span className="mb-1.5 block text-sm font-semibold">Nombre del cliente</span>
-            <input className="field" value={customerName} onChange={(e) => setCustomerName(e.target.value)} required />
-          </label>
-          <label className="block">
-            <span className="mb-1.5 block text-sm font-semibold">Teléfono</span>
-            <input className="field" value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)} placeholder="+51 9XX XXX XXX" required />
-          </label>
-          <label className="block">
-            <span className="mb-1.5 block text-sm font-semibold">Notas <span className="font-normal text-graphite">· opcional</span></span>
-            <textarea className="field min-h-24" value={notes} onChange={(e) => setNotes(e.target.value)} />
-          </label>
+          <FormField label="Nombre del cliente" required>
+            <TextInput
+              value={customerName}
+              onChange={(e) => setCustomerName(e.target.value)}
+              placeholder="Ej: Maria Perez"
+              required
+            />
+          </FormField>
+          <FormField label="Teléfono" required>
+            <TextInput
+              type="tel"
+              value={customerPhone}
+              onChange={(e) => setCustomerPhone(e.target.value)}
+              placeholder="+51 9XX XXX XXX"
+              inputMode="tel"
+              required
+            />
+          </FormField>
+          <FormField label="Notas" hint="Opcional">
+            <TextArea
+              className="min-h-24"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Datos extra que te interesa recordar del pedido."
+            />
+          </FormField>
 
           <div className="space-y-3 border-t border-line pt-5">
             <div className="flex items-center justify-between">
               <span className="text-sm font-semibold">Total</span>
               <span className="text-2xl font-bold tabular-nums">{formatPrice(total || 0)}</span>
             </div>
-            <label className="block">
-              <span className="mb-1.5 block text-sm font-semibold">Adelanto recibido <span className="font-normal text-graphite">· S/ (vacío = 0)</span></span>
-              <input
-                className="field tabular-nums"
+            <FormField label="Adelanto recibido · S/ (vacío = 0)">
+              <TextInput
+                className="tabular-nums"
                 inputMode="decimal"
                 placeholder={total ? (total / 2).toFixed(2) : '0.00'}
                 value={paidAmount}
                 onChange={(e) => setPaidAmount(e.target.value)}
               />
-            </label>
+            </FormField>
             <label className="flex cursor-pointer gap-3">
               <input type="checkbox" className="mt-1 size-5 accent-ink" checked={confirm} onChange={(e) => setConfirm(e.target.checked)} />
               <span>
@@ -227,6 +264,13 @@ export function NewOrderPage() {
           </div>
         </section>
       </div>
+
+      <CustomerModal
+        open={customerOpen}
+        onClose={() => setCustomerOpen(false)}
+        initial={{ name: customerName, phone: customerPhone }}
+        onSaved={onSaveCustomer}
+      />
     </form>
   );
 }

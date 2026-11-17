@@ -9,6 +9,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { ApiTags } from '@nestjs/swagger';
 import {
   CreateOrderDto,
   OrderQueryDto,
@@ -18,6 +19,7 @@ import {
 import { OrdersService } from './orders.service';
 
 @UseGuards(JwtAuthGuard)
+@ApiTags('pedidos')
 @Controller('admin/orders')
 export class OrdersController {
   constructor(private readonly orders: OrdersService) {}

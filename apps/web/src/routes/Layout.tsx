@@ -36,7 +36,7 @@ export function Layout() {
     <div className="flex min-h-dvh flex-col bg-paper">
       <AnnouncementBar />
 
-      <header className="sticky top-0 z-40 border-b border-line bg-paper/90 backdrop-blur">
+      <header data-chrome className="sticky top-0 z-40 border-b border-line bg-paper/90 backdrop-blur">
         <div className="mx-auto flex max-w-[90rem] items-center justify-between gap-6 px-4 py-2 sm:px-8">
           <Link to="/" aria-label="Phaway, ir al inicio" className="shrink-0">
             <img src="/brand/phaway-negro.png" alt="Phaway" className="h-11 w-auto" />
@@ -107,7 +107,7 @@ export function Layout() {
 
 function AnnouncementBar() {
   return (
-    <div className="bg-ink text-paper">
+    <div data-chrome className="bg-ink text-paper">
       <div className="mx-auto flex max-w-[90rem] flex-wrap items-center justify-between gap-2 px-4 py-2 text-[0.8rem] sm:px-8">
         <p className="flex items-center gap-2">
           <IconMapPin className="size-4" />

@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Navigate, useNavigate } from 'react-router';
+import { Link, Navigate, useNavigate } from 'react-router';
 import { z } from 'zod';
 import { api } from '../lib/api-client';
 import { useSession } from '../lib/queries';
@@ -22,13 +22,13 @@ export function LoginPage() {
     formState: { errors, isSubmitting },
   } = useForm<LoginForm>({ resolver: zodResolver(schema) });
 
-  if (session) return <Navigate to="/admin/productos" replace />;
+  if (session) return <Navigate to="/admin/inicio" replace />;
 
   const onSubmit = handleSubmit(async ({ email, password }) => {
     setError(null);
     try {
       await api.login(email, password);
-      navigate('/admin/productos', { replace: true });
+      navigate('/admin/inicio', { replace: true });
     } catch (e) {
       setError(e instanceof Error ? e.message : 'No se pudo iniciar sesión');
     }
@@ -82,6 +82,15 @@ export function LoginPage() {
           <button type="submit" disabled={isSubmitting} className="btn btn-solid mt-8 w-full">
             {isSubmitting ? 'Entrando…' : 'Entrar'}
           </button>
+
+          <p className="mt-6 text-center text-sm">
+            <Link
+              to="/admin/forgot-password"
+              className="text-graphite hover:text-ink hover:underline"
+            >
+              ¿Olvidaste tu contraseña?
+            </Link>
+          </p>
         </form>
       </div>
     </div>

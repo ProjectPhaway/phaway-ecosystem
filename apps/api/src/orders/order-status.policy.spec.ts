@@ -30,8 +30,12 @@ describe('OrderStatusPolicy', () => {
 
   it('sella la fecha del estado', () => {
     const now = new Date('2026-11-13T10:00:00Z');
-    expect(OrderStatusPolicy.timestampsFor(confirmed, now)).toEqual({ confirmedAt: now });
-    expect(OrderStatusPolicy.timestampsFor(delivered, now)).toEqual({ deliveredAt: now });
+    expect(OrderStatusPolicy.timestampsFor(confirmed, now)).toEqual({
+      confirmedAt: now,
+    });
+    expect(OrderStatusPolicy.timestampsFor(delivered, now)).toEqual({
+      deliveredAt: now,
+    });
     expect(OrderStatusPolicy.timestampsFor(cancelled, now)).toEqual({});
   });
 });

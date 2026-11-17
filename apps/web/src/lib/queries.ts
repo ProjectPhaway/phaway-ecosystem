@@ -123,3 +123,142 @@ export function useUpdateOrderPayment() {
     onSuccess: () => void qc.invalidateQueries({ queryKey: ['admin'] }),
   });
 }
+
+/** Ajustes publicos: la guia de tallas que ve el cliente en la ficha. */
+export function useSizeGuide() {
+  return useQuery({
+    queryKey: ['settings', 'size-guide'] as const,
+    queryFn: () => api.getSizeGuide(),
+    staleTime: 5 * 60_000,
+  });
+}
+
+export function useUpdateSizeGuide() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (url: string | null) => api.setSizeGuide(url),
+    onSuccess: (data) => qc.setQueryData(['settings', 'size-guide'], data),
+  });
+}
+
+/** Cambia la contrasena del usuario autenticado. */
+export function useChangePassword() {
+  return useMutation({
+    mutationFn: ({ current, next }: { current: string; next: string }) =>
+      api.changePassword(current, next),
+  });
+}
+
+// ---------- Usuarios del panel (admin) ----------
+
+export const usersKeys = {
+  list: ['admin', 'users'] as const,
+  invitations: ['admin', 'users', 'invitations'] as const,
+};
+
+export function useAdminUsers() {
+  return useQuery({ queryKey: usersKeys.list, queryFn: () => api.listUsers() });
+}
+
+export function useAdminInvitations() {
+  return useQuery({ queryKey: usersKeys.invitations, queryFn: () => api.listInvitations() });
+}
+
+export function useInviteUser() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (v: { email: string; name: string; role: 'admin' | 'marketing' }) =>
+      api.inviteUser(v.email, v.name, v.role),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: usersKeys.invitations }),
+  });
+}
+
+export function useResendInvitation() {
+  return useMutation({ mutationFn: (id: string) => api.resendInvitation(id) });
+}
+
+export function useCancelInvitation() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api.cancelInvitation(id),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: usersKeys.invitations }),
+  });
+}
+
+export function useSetUserStatus() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, isActive }: { id: string; isActive: boolean }) =>
+      api.setUserStatus(id, isActive),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: usersKeys.list }),
+  });
+}
+
+export function useDeleteUser() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api.deleteUser(id),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: usersKeys.list }),
+  });
+}
+
+// ---------- Analytics ----------
+
+export const analyticsKeys = {
+  kpis: (threshold?: number) => ['analytics', 'kpis', threshold ?? null] as const,
+  dailySales: (days: number) => ['analytics', 'daily-sales', days] as const,
+  topProducts: (days: number, limit: number) => ['analytics', 'top-products', days, limit] as const,
+  ordersByStatus: ['analytics', 'orders-by-status'] as const,
+  revenueByCategory: (days: number) => ['analytics', 'revenue-by-category', days] as const,
+  lowStock: (threshold: number) => ['analytics', 'low-stock', threshold] as const,
+};
+
+const ANALYTICS_STALE_MS = 60_000;
+
+export function useDashboardKpis(threshold?: number) {
+  return useQuery({
+    queryKey: analyticsKeys.kpis(threshold),
+    queryFn: () => api.dashboardKpis(threshold),
+    staleTime: ANALYTICS_STALE_MS,
+  });
+}
+
+export function useDailySales(days: number) {
+  return useQuery({
+    queryKey: analyticsKeys.dailySales(days),
+    queryFn: () => api.dailySales(days),
+    staleTime: ANALYTICS_STALE_MS,
+  });
+}
+
+export function useTopProducts(days: number, limit = 5) {
+  return useQuery({
+    queryKey: analyticsKeys.topProducts(days, limit),
+    queryFn: () => api.topProducts(days, limit),
+    staleTime: ANALYTICS_STALE_MS,
+  });
+}
+
+export function useOrdersByStatus() {
+  return useQuery({
+    queryKey: analyticsKeys.ordersByStatus,
+    queryFn: () => api.ordersByStatus(),
+    staleTime: ANALYTICS_STALE_MS,
+  });
+}
+
+export function useRevenueByCategory(days: number) {
+  return useQuery({
+    queryKey: analyticsKeys.revenueByCategory(days),
+    queryFn: () => api.revenueByCategory(days),
+    staleTime: ANALYTICS_STALE_MS,
+  });
+}
+
+export function useLowStock(threshold = 3) {
+  return useQuery({
+    queryKey: analyticsKeys.lowStock(threshold),
+    queryFn: () => api.lowStock(threshold),
+    staleTime: ANALYTICS_STALE_MS,
+  });
+}

@@ -20,6 +20,10 @@ test('admin sube un producto, aparece en la tienda y se reserva por WhatsApp', a
   // Login correcto
   await page.getByLabel('Contraseña').fill(PASSWORD);
   await page.getByRole('button', { name: 'Entrar' }).click();
+  await expect(page.getByRole('heading', { name: 'Inicio' })).toBeVisible();
+
+  // Navegar al listado de productos desde el sidebar
+  await page.getByRole('link', { name: 'Productos', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Productos' })).toBeVisible();
 
   // Crear producto

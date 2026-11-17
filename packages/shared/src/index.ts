@@ -142,3 +142,79 @@ export function buildWhatsAppReservationMessage(r: WhatsAppReservation): string 
 export function buildWhatsAppUrl(message: string, phone = WHATSAPP_SALES_NUMBER): string {
   return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
 }
+
+/** Guia de tallas unica, global para toda la tienda. */
+export interface SizeGuide {
+  url: string | null;
+  updatedAt: string | null;
+}
+
+/** Usuario del panel visto desde la lista admin. */
+export interface AdminUserDto {
+  id: string;
+  email: string;
+  name: string;
+  role: UserRole;
+  isActive: boolean;
+  createdAt: string;
+}
+
+/** Invitacion pendiente (token aun no consumido). */
+export interface PendingInvitationDto {
+  id: string;
+  email: string;
+  name: string;
+  role: UserRole;
+  expiresAt: string;
+  createdAt: string;
+  invitedBy: { id: string; name: string; email: string };
+}
+
+// ---------- Analytics ----------
+
+export interface DailySalesPoint {
+  /** YYYY-MM-DD en UTC Peru (America/Lima). */
+  date: string;
+  orders: number;
+  revenue: string;
+}
+
+export interface TopProductRow {
+  productId: string;
+  name: string;
+  slug: string;
+  unitsSold: number;
+  revenue: string;
+}
+
+export interface OrdersByStatusRow {
+  status: OrderStatus;
+  count: number;
+}
+
+export interface RevenueByCategoryRow {
+  categoryId: string;
+  name: string;
+  revenue: string;
+}
+
+export interface LowStockRow {
+  productId: string;
+  productName: string;
+  slug: string;
+  variantId: string;
+  size: string;
+  color: string;
+  stock: number;
+}
+
+export interface DashboardKpis {
+  /** Pedidos confirmados hoy (00:00 local a ahora). */
+  ordersToday: number;
+  /** Ingresos confirmados + entregados del mes en curso. */
+  revenueThisMonth: string;
+  /** Pedidos en estado `pending`. */
+  pendingOrders: number;
+  /** Variantes activas con stock <= threshold. */
+  lowStockCount: number;
+}

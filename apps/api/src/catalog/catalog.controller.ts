@@ -10,6 +10,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { ApiTags } from '@nestjs/swagger';
 import { CatalogService } from './catalog.service';
 import {
   CreateProductDto,
@@ -18,6 +19,7 @@ import {
 } from './dto/product.dto';
 
 /** Endpoints publicos del catalogo. */
+@ApiTags('catalogo publico')
 @Controller()
 export class CatalogController {
   constructor(private readonly catalog: CatalogService) {}
@@ -40,6 +42,7 @@ export class CatalogController {
 
 /** Endpoints del panel admin (requieren login). */
 @UseGuards(JwtAuthGuard)
+@ApiTags('catalogo admin')
 @Controller('admin/products')
 export class AdminProductsController {
   constructor(private readonly catalog: CatalogService) {}

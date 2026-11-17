@@ -96,11 +96,47 @@ enum UserRole {
 }
 
 model User {
-  id           String   @id @default(cuid())
-  email        String   @unique
-  passwordHash String
-  role         UserRole
-  name         String
-  isActive     Boolean  @default(true)
-  createdAt    DateTime @default(now())
+  id              String               @id @default(cuid())
+  email           String               @unique
+  passwordHash    String
+  role            UserRole
+  name            String
+  isActive        Boolean              @default(true)
+  createdAt       DateTime             @default(now())
+  resetTokens     PasswordResetToken[]
+  invitationsSent UserInvitation[]     @relation("InvitedByUser")
+}
+
+/// Token para recuperar contrasena. Solo se guarda el hash sha256 del token;
+/// el valor plano vive en el correo y expira en 1 hora.
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+/// Invitacion de admin para sumar un nuevo usuario al panel. Si `consumedAt`
+/// esta null y no venció, se puede aceptar y crea el User con `passwordHash`
+/// definido por el invitado.
+model UserInvitation {
+  id          String    @id @default(cuid())
+  email       String
+  name        String
+  role        UserRole
+  tokenHash   String    @unique
+  expiresAt   DateTime
+  consumedAt  DateTime?
+  invitedById String
+  invitedBy   User      @relation("InvitedByUser", fields: [invitedById], references: [id])
+  createdAt   DateTime  @default(now())
+
+  @@index([email])
+  @@index([expiresAt])
 }

@@ -6,6 +6,9 @@ packages:
 allowBuilds:
   '@parcel/watcher': true
   '@prisma/engines': true
+  # Telemetria anonima que algunos paquetes inyectan (lo pulled en transitivo
+  # @nestjs/swagger -> @scarf/scarf). No lo necesitamos, se bloquea.
+  '@scarf/scarf': false
   bcrypt: true
   esbuild: true
   prisma: true
