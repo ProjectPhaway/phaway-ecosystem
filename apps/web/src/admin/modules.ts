@@ -82,7 +82,6 @@ export const moduleTree: ModuleCategory[] = [
         path: '/admin/clientes',
         icon: Users,
         roles: ALL,
-        stubNote: 'Ficha de cliente con historial de compras y total gastado. Fase 2.',
       },
     ],
   },

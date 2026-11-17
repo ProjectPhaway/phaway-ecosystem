@@ -262,3 +262,27 @@ export function useLowStock(threshold = 3) {
     staleTime: ANALYTICS_STALE_MS,
   });
 }
+
+// ---------- Clientes (derivados) ----------
+
+export const customersKeys = {
+  list: (q?: string) => ['admin', 'customers', q ?? ''] as const,
+  detail: (phone: string) => ['admin', 'customers', 'detail', phone] as const,
+};
+
+export function useCustomers(q?: string) {
+  return useQuery({
+    queryKey: customersKeys.list(q),
+    queryFn: () => api.listCustomers(q),
+    staleTime: 60_000,
+  });
+}
+
+export function useCustomerDetail(phone: string | null) {
+  return useQuery({
+    queryKey: customersKeys.detail(phone ?? ''),
+    queryFn: () => api.customerDetail(phone as string),
+    enabled: !!phone,
+    staleTime: 60_000,
+  });
+}

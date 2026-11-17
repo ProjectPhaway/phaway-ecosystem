@@ -1,8 +1,11 @@
+// Sentry debe cargarse ANTES que cualquier otro modulo para instrumentar Nest.
+import './instrument';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import type { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { SentryGlobalFilter } from '@sentry/nestjs/setup';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
 import { UPLOADS_DIR } from './uploads/uploads.service';
@@ -86,6 +89,8 @@ async function bootstrap() {
     maxAge: '30d',
     immutable: true,
   });
+  // Capturar excepciones no manejadas y mandarlas a Sentry (si esta activo).
+  app.useGlobalFilters(new SentryGlobalFilter(app.getHttpAdapter()));
   app.enableShutdownHooks();
 
   // Swagger solo en dev y staging. En produccion se apaga con SWAGGER=off.

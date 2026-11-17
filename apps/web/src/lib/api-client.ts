@@ -1,6 +1,8 @@
 import type {
   AdminUserDto,
   CategoryDto,
+  CustomerDetailDto,
+  CustomerSummaryDto,
   DailySalesPoint,
   DashboardKpis,
   LoginResponse,
@@ -226,6 +228,17 @@ export class ApiClient {
 
   lowStock(threshold = 3): Promise<LowStockRow[]> {
     return this.request<LowStockRow[]>('GET', `/admin/analytics/low-stock?threshold=${threshold}`);
+  }
+
+  // ---------- Clientes (derivados de pedidos) ----------
+
+  listCustomers(q?: string): Promise<CustomerSummaryDto[]> {
+    const qs = q ? `?q=${encodeURIComponent(q)}` : '';
+    return this.request<CustomerSummaryDto[]>('GET', `/admin/customers${qs}`);
+  }
+
+  customerDetail(phone: string): Promise<CustomerDetailDto> {
+    return this.request<CustomerDetailDto>('GET', `/admin/customers/${encodeURIComponent(phone)}`);
   }
 
   // ---------- Ajustes ----------

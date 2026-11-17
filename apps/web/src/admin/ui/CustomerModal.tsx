@@ -63,8 +63,8 @@ export function CustomerModal({ open, onClose, initial, onSaved }: CustomerModal
       notes: notes.trim() || undefined,
     };
     onSaved(customer);
-    toast.success('Cliente guardado', {
-      description: `${customer.name} queda listo para el pedido.`,
+    toast.success('Datos del cliente agregados', {
+      description: `${customer.name} queda cargado en este pedido. Al confirmarlo aparece en Clientes.`,
     });
     onClose();
   };
@@ -73,8 +73,8 @@ export function CustomerModal({ open, onClose, initial, onSaved }: CustomerModal
     <Modal
       open={open}
       onClose={onClose}
-      title="Nuevo cliente"
-      description="Completa los datos del cliente. Quedaran copiados al pedido."
+      title="Datos del cliente"
+      description="Completa los datos. Se copian al pedido actual y, al confirmarlo, el cliente aparece en el modulo Clientes con su historial."
       size="lg"
       footer={
         <>

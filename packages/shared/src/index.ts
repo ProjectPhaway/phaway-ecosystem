@@ -218,3 +218,31 @@ export interface DashboardKpis {
   /** Variantes activas con stock <= threshold. */
   lowStockCount: number;
 }
+
+// ---------- Clientes (derivados de pedidos en Fase 1) ----------
+
+export type CustomerTier = 'new' | 'recurring' | 'vip';
+
+/** Resumen de cliente derivado de los pedidos. `phone` es la clave natural. */
+export interface CustomerSummaryDto {
+  phone: string;
+  name: string;
+  totalOrders: number;
+  totalSpent: string;
+  firstOrderAt: string;
+  lastOrderAt: string;
+  tier: CustomerTier;
+}
+
+export interface CustomerOrderDto {
+  id: string;
+  orderNumber: string;
+  status: OrderStatus;
+  totalAmount: string;
+  paidAmount: string;
+  createdAt: string;
+}
+
+export interface CustomerDetailDto extends CustomerSummaryDto {
+  orders: CustomerOrderDto[];
+}
