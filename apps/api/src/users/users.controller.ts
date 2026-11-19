@@ -17,7 +17,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import type { AuthUser } from '../auth/jwt-payload';
 import { Roles, RolesGuard } from '../auth/roles.guard';
 import { AcceptInvitationDto } from './dto/accept-invitation.dto';
-import { InviteUserDto } from './dto/invite-user.dto';
+import { InviteUserDto, SetUserRoleDto } from './dto/invite-user.dto';
 import { UsersService } from './users.service';
 
 /** Gestion de usuarios del panel. Solo rol `admin`. */
@@ -73,6 +73,15 @@ export class UsersAdminController {
     @Body() dto: { isActive: boolean },
   ): Promise<AdminUserDto> {
     return this.users.setStatus(id, req.user.id, !!dto.isActive);
+  }
+
+  @Patch(':id/role')
+  setRole(
+    @Req() req: Request & { user: AuthUser },
+    @Param('id') id: string,
+    @Body() dto: SetUserRoleDto,
+  ): Promise<AdminUserDto> {
+    return this.users.setRole(id, req.user.id, dto.role);
   }
 
   @Delete(':id')

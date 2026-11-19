@@ -15,6 +15,7 @@ test.skip(!EMAIL || !PASSWORD, 'Define E2E_ADMIN_EMAIL y E2E_ADMIN_PASSWORD');
 test('registrar pedido descuenta stock y actualiza estado', async ({ page }) => {
   const stamp = Date.now();
   const productName = `E2E Camiseta Venta ${stamp}`;
+  const couponCode = `E2E${stamp}`;
 
   // --- login
   await page.goto('/admin');
@@ -38,6 +39,16 @@ test('registrar pedido descuenta stock y actualiza estado', async ({ page }) => 
   await page.getByRole('button', { name: 'Publicar producto' }).click();
   await expect(page.getByRole('heading', { name: 'Productos' })).toBeVisible();
 
+  // --- cupón
+  await page.getByRole('link', { name: 'Cupones', exact: true }).click();
+  await page.getByRole('button', { name: 'Nuevo cupon' }).click();
+  await page.getByLabel('Codigo').fill(couponCode);
+  await page.getByLabel('Tipo').selectOption('percent');
+  await page.getByLabel('Porcentaje (%)').fill('10');
+  await page.getByLabel('Compra minima (S/)').fill('100');
+  await page.getByRole('button', { name: 'Crear', exact: true }).click();
+  await expect(page.getByText(couponCode)).toBeVisible();
+
   // --- nuevo pedido
   await page.getByRole('link', { name: 'Ventas' }).click();
   await page.getByRole('link', { name: 'Nuevo pedido' }).click();
@@ -46,12 +57,13 @@ test('registrar pedido descuenta stock y actualiza estado', async ({ page }) => 
   await page.getByLabel(new RegExp(`Cantidad de ${productName}`)).fill('2');
   await page.getByLabel('Nombre del cliente').fill('Cliente E2E');
   await page.getByLabel('Teléfono').fill('+51 900 000 000');
-  await page.getByLabel('Adelanto recibido · S/ (vacío = 0)').fill('100.00');
+  await page.getByLabel('Codigo de descuento · opcional').fill(couponCode);
+  await page.getByLabel('Adelanto recibido · S/ (vacío = 0)').fill('90.00');
   await page.getByRole('button', { name: 'Registrar y confirmar' }).click();
 
   // --- detalle: pedido confirmado, stock debe haber bajado en 2 (quedan 3)
   await expect(page.getByText('Confirmado').first()).toBeVisible();
-  await expect(page.getByText(/^S\/ 200\.00/).first()).toBeVisible();
+  await expect(page.getByText(/^S\/ 180\.00/).first()).toBeVisible();
 
   // Monto inválido
   await page.getByLabel('Nuevo monto pagado total').fill('500');
@@ -59,7 +71,7 @@ test('registrar pedido descuenta stock y actualiza estado', async ({ page }) => 
   await expect(page.getByRole('alert')).toContainText('total');
 
   // Pago correcto: queda en cero
-  await page.getByLabel('Nuevo monto pagado total').fill('200');
+  await page.getByLabel('Nuevo monto pagado total').fill('180');
   await page.getByRole('button', { name: 'Guardar' }).click();
   await expect(page.getByText('Pagado').first()).toBeVisible();
 
@@ -80,4 +92,16 @@ test('registrar pedido descuenta stock y actualiza estado', async ({ page }) => 
   await del.click();
   await del.click();
   await expect(page.getByRole('status')).toContainText('ocultó');
+
+  // Limpieza del cupón
+  await page.goto('/admin/cupones');
+  const couponRow = page.getByRole('row', { name: new RegExp(couponCode) });
+  page.once('dialog', (dialog) => void dialog.accept());
+  const deleteResponse = page.waitForResponse(
+    (response) =>
+      response.url().includes('/api/admin/coupons/') &&
+      response.request().method() === 'DELETE',
+  );
+  await couponRow.getByRole('button', { name: 'Eliminar' }).click();
+  await deleteResponse;
 });

@@ -1,4 +1,4 @@
-import type { OrderInput, OrderStatus, ProductInput } from '@phaway/shared';
+import type { OrderInput, OrderStatus, ProductInput, UserRole } from '@phaway/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSyncExternalStore } from 'react';
 import { api, type ProductFilters } from './api-client';
@@ -167,7 +167,7 @@ export function useAdminInvitations() {
 export function useInviteUser() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (v: { email: string; name: string; role: 'admin' | 'marketing' }) =>
+    mutationFn: (v: { email: string; name: string; role: UserRole }) =>
       api.inviteUser(v.email, v.name, v.role),
     onSuccess: () => void qc.invalidateQueries({ queryKey: usersKeys.invitations }),
   });
@@ -190,6 +190,15 @@ export function useSetUserStatus() {
   return useMutation({
     mutationFn: ({ id, isActive }: { id: string; isActive: boolean }) =>
       api.setUserStatus(id, isActive),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: usersKeys.list }),
+  });
+}
+
+export function useSetUserRole() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, role }: { id: string; role: UserRole }) =>
+      api.setUserRole(id, role),
     onSuccess: () => void qc.invalidateQueries({ queryKey: usersKeys.list }),
   });
 }
@@ -284,5 +293,43 @@ export function useCustomerDetail(phone: string | null) {
     queryFn: () => api.customerDetail(phone as string),
     enabled: !!phone,
     staleTime: 60_000,
+  });
+}
+
+// ---------- Cupones ----------
+
+export const couponsKeys = {
+  list: ['admin', 'coupons'] as const,
+};
+
+export function useCoupons() {
+  return useQuery({
+    queryKey: couponsKeys.list,
+    queryFn: () => api.listCoupons(),
+  });
+}
+
+export function useCreateCoupon() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (input: Parameters<typeof api.createCoupon>[0]) => api.createCoupon(input),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: couponsKeys.list }),
+  });
+}
+
+export function useSetCouponStatus() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, isActive }: { id: string; isActive: boolean }) =>
+      api.setCouponStatus(id, isActive),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: couponsKeys.list }),
+  });
+}
+
+export function useDeleteCoupon() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api.deleteCoupon(id),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: couponsKeys.list }),
   });
 }

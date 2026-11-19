@@ -9,6 +9,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { Roles, RolesGuard } from '../auth/roles.guard';
 import { ApiTags } from '@nestjs/swagger';
 import {
   CreateOrderDto,
@@ -18,7 +19,8 @@ import {
 } from './dto/order.dto';
 import { OrdersService } from './orders.service';
 
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles('admin', 'marketing', 'vendedor')
 @ApiTags('pedidos')
 @Controller('admin/orders')
 export class OrdersController {

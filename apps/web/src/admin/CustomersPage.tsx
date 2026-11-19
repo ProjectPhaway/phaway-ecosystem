@@ -4,6 +4,7 @@ import {
   ExternalLink,
   Package,
   Phone,
+  PhoneCall,
   RotateCw,
   Search,
   User as UserIcon,
@@ -190,6 +191,12 @@ function CustomerRow({
 
 function CustomerDetailModal({ phone, onClose }: { phone: string | null; onClose: () => void }) {
   const query = useCustomerDetail(phone);
+  const normalizedPhone = query.data ? normalizeWhatsAppPhone(query.data.phone) : '';
+  const whatsappUrl = query.data && normalizedPhone
+    ? `https://wa.me/${normalizeWhatsAppPhone(query.data.phone)}?text=${encodeURIComponent(
+        `Hola ${query.data.name}, te escribimos de Phaway.`,
+      )}`
+    : undefined;
 
   return (
     <Modal
@@ -199,9 +206,22 @@ function CustomerDetailModal({ phone, onClose }: { phone: string | null; onClose
       size="lg"
       dismissible
       footer={
-        <button type="button" onClick={onClose} className="btn btn-outline">
-          Cerrar
-        </button>
+        <>
+          {whatsappUrl && (
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-solid"
+            >
+              <PhoneCall className="size-4" />
+              Enviar WhatsApp
+            </a>
+          )}
+          <button type="button" onClick={onClose} className="btn btn-outline">
+            Cerrar
+          </button>
+        </>
       }
     >
       {query.isPending ? (
@@ -270,6 +290,14 @@ function InfoRow({
       </div>
     </div>
   );
+}
+
+function normalizeWhatsAppPhone(phone: string): string {
+  const digits = phone.replace(/\D/g, '');
+  if (!digits) return '';
+  if (digits.startsWith('51') && digits.length >= 11) return digits;
+  if (digits.length === 9) return `51${digits}`;
+  return digits;
 }
 
 function EmptyState({ hasSearch }: { hasSearch: boolean }) {

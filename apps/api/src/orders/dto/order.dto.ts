@@ -63,6 +63,12 @@ export class CreateOrderDto {
   @IsOptional()
   @IsBoolean()
   confirm?: boolean;
+
+  @IsOptional()
+  @Transform(trim)
+  @IsString()
+  @MaxLength(40)
+  couponCode?: string;
 }
 
 export class UpdateOrderStatusDto {

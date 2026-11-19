@@ -11,6 +11,7 @@ import {
   useDeleteUser,
   useResendInvitation,
   useSession,
+  useSetUserRole,
   useSetUserStatus,
 } from '../lib/queries';
 import { InviteUserModal } from './ui/InviteUserModal';
@@ -18,6 +19,8 @@ import { InviteUserModal } from './ui/InviteUserModal';
 const roleLabel: Record<UserRole, string> = {
   admin: 'Administrador',
   marketing: 'Marketing',
+  vendedor: 'Vendedor',
+  taller: 'Taller',
 };
 
 function fmtDate(iso: string): string {
@@ -151,6 +154,7 @@ function Stat({
 
 function UserRow({ user, meId }: { user: AdminUserDto; meId: string | undefined }) {
   const setStatus = useSetUserStatus();
+  const setRole = useSetUserRole();
   const remove = useDeleteUser();
   const [confirmDel, setConfirmDel] = useState(false);
   const isMe = user.id === meId;
@@ -161,6 +165,17 @@ function UserRow({ user, meId }: { user: AdminUserDto; meId: string | undefined 
       toast.success(user.isActive ? 'Usuario suspendido' : 'Usuario reactivado');
     } catch (e) {
       toast.error('Error', { description: e instanceof ApiError ? e.message : undefined });
+    }
+  };
+
+  const changeRole = async (role: UserRole) => {
+    try {
+      await setRole.mutateAsync({ id: user.id, role });
+      toast.success('Rol actualizado');
+    } catch (e) {
+      toast.error('No se pudo cambiar el rol', {
+        description: e instanceof ApiError ? e.message : undefined,
+      });
     }
   };
 
@@ -186,10 +201,25 @@ function UserRow({ user, meId }: { user: AdminUserDto; meId: string | undefined 
         <p className="text-xs text-graphite">{user.email}</p>
       </td>
       <td className="px-4 py-3">
-        <span className="inline-flex items-center gap-1 rounded-md bg-concrete px-2 py-0.5 text-xs font-semibold text-ink">
-          <Shield className="size-3" />
-          {roleLabel[user.role]}
-        </span>
+        {isMe ? (
+          <span className="inline-flex items-center gap-1 rounded-md bg-concrete px-2 py-0.5 text-xs font-semibold text-ink">
+            <Shield className="size-3" />
+            {roleLabel[user.role]}
+          </span>
+        ) : (
+          <select
+            value={user.role}
+            onChange={(e) => void changeRole(e.target.value as UserRole)}
+            disabled={setRole.isPending}
+            className="rounded-md border border-line bg-paper px-2 py-1 text-xs font-semibold"
+            aria-label={`Cambiar rol de ${user.name}`}
+          >
+            <option value="admin">Administrador</option>
+            <option value="marketing">Marketing</option>
+            <option value="vendedor">Vendedor</option>
+            <option value="taller">Taller</option>
+          </select>
+        )}
       </td>
       <td className="px-4 py-3">
         {user.isActive ? (

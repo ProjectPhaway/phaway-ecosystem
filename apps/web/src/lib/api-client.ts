@@ -1,6 +1,7 @@
 import type {
   AdminUserDto,
   CategoryDto,
+  CouponDto,
   CustomerDetailDto,
   CustomerSummaryDto,
   DailySalesPoint,
@@ -155,6 +156,27 @@ export class ApiClient {
     await this.request<void>('POST', '/account/change-password', { currentPassword, newPassword });
   }
 
+  async updateProfilePhoto(file: File): Promise<string> {
+    const form = new FormData();
+    form.append('file', file);
+    const { avatarUrl } = await this.request<{ avatarUrl: string }>(
+      'POST',
+      '/account/profile-photo',
+      form,
+    );
+    if (this.session.user) {
+      this.session.save(this.session.token!, { ...this.session.user, avatarUrl });
+    }
+    return avatarUrl;
+  }
+
+  async removeProfilePhoto(): Promise<void> {
+    await this.request<void>('DELETE', '/account/profile-photo');
+    if (this.session.user) {
+      this.session.save(this.session.token!, { ...this.session.user, avatarUrl: null });
+    }
+  }
+
   async forgotPassword(email: string): Promise<void> {
     await this.request<{ queued: true }>('POST', '/auth/forgot-password', { email });
   }
@@ -193,6 +215,34 @@ export class ApiClient {
     return this.request<AdminUserDto>('PATCH', `/admin/users/${id}/status`, { isActive });
   }
 
+  async setUserRole(id: string, role: UserRole): Promise<AdminUserDto> {
+    return this.request<AdminUserDto>('PATCH', `/admin/users/${id}/role`, { role });
+  }
+
+  listCoupons(): Promise<CouponDto[]> {
+    return this.request<CouponDto[]>('GET', '/admin/coupons');
+  }
+
+  createCoupon(input: {
+    code: string;
+    type: 'percent' | 'fixed';
+    value: string;
+    minimumAmount?: string;
+    usageLimit?: number;
+    startsAt?: string;
+    expiresAt?: string;
+  }): Promise<CouponDto> {
+    return this.request<CouponDto>('POST', '/admin/coupons', input);
+  }
+
+  setCouponStatus(id: string, isActive: boolean): Promise<CouponDto> {
+    return this.request<CouponDto>('PATCH', `/admin/coupons/${id}/status`, { isActive });
+  }
+
+  deleteCoupon(id: string): Promise<void> {
+    return this.request<void>('DELETE', `/admin/coupons/${id}`);
+  }
+
   async deleteUser(id: string): Promise<void> {
     await this.request<void>('DELETE', `/admin/users/${id}`);
   }
@@ -228,6 +278,24 @@ export class ApiClient {
 
   lowStock(threshold = 3): Promise<LowStockRow[]> {
     return this.request<LowStockRow[]>('GET', `/admin/analytics/low-stock?threshold=${threshold}`);
+  }
+
+  async exportAnalytics(
+    report: 'daily-sales' | 'top-products' | 'orders-by-status' | 'revenue-by-category' | 'low-stock',
+    days = 30,
+  ): Promise<{ blob: Blob; filename: string }> {
+    const token = this.session.token;
+    const qs = new URLSearchParams({ report, days: String(days), limit: '20' });
+    const res = await fetch(`${this.baseUrl}/admin/analytics/export?${qs}`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+    if (!res.ok) throw await ApiError.fromResponse(res);
+    const disposition = res.headers.get('Content-Disposition');
+    const filenameMatch = disposition?.match(/filename="([^"]+)"/);
+    return {
+      blob: await res.blob(),
+      filename: filenameMatch?.[1] ?? `${report}.csv`,
+    };
   }
 
   // ---------- Clientes (derivados de pedidos) ----------
@@ -271,12 +339,12 @@ export class ApiClient {
     } catch {
       throw new ApiError(0, 'No se pudo conectar con el servidor. Revisa que el API este encendido.');
     }
-
     if (res.status === 401 && token) {
       // Token vencido o invalido: cerrar sesion para forzar nuevo login.
       this.session.clear();
     }
     if (!res.ok) throw await ApiError.fromResponse(res);
+    if (res.status === 204) return undefined as T;
     return (await res.json()) as T;
   }
 }

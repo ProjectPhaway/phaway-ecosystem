@@ -26,6 +26,7 @@ const ResetPasswordPage = lazy(() => import('./admin/ResetPasswordPage').then((m
 const ActivateAccountPage = lazy(() => import('./admin/ActivateAccountPage').then((m) => ({ default: m.ActivateAccountPage })));
 const UsersPage = lazy(() => import('./admin/UsersPage').then((m) => ({ default: m.UsersPage })));
 const CustomersPage = lazy(() => import('./admin/CustomersPage').then((m) => ({ default: m.CustomersPage })));
+const CouponsPage = lazy(() => import('./admin/CouponsPage').then((m) => ({ default: m.CouponsPage })));
 
 // El fallback de Suspense se define en main.tsx alrededor del RouterProvider.
 export const router = createBrowserRouter([
@@ -67,6 +68,7 @@ export const router = createBrowserRouter([
       { path: 'ventas', element: <OrdersPage /> },
       { path: 'ventas/nuevo', element: <NewOrderPage /> },
       { path: 'ventas/:id', element: <OrderDetailPage /> },
+      { path: 'cupones', element: <CouponsPage /> },
       { path: 'clientes', element: <CustomersPage /> },
       { path: 'usuarios', element: <UsersPage /> },
       { path: 'perfil', element: <PerfilPage /> },

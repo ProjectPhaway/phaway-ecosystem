@@ -2,6 +2,7 @@ import { Body, Controller, Get, Put, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import type { SizeGuide } from '@phaway/shared';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { Roles, RolesGuard } from '../auth/roles.guard';
 import { UpdateSizeGuideDto } from './dto/size-guide.dto';
 import { SettingsService } from './settings.service';
 
@@ -19,7 +20,8 @@ export class PublicSettingsController {
 
 /** Escritura de ajustes: solo el panel. */
 @ApiTags('ajustes admin')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles('admin', 'marketing')
 @Controller('admin/settings')
 export class AdminSettingsController {
   constructor(private readonly settings: SettingsService) {}

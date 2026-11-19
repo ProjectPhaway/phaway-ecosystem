@@ -6,6 +6,7 @@ import {
   type LucideIcon,
   Package,
   PlusCircle,
+  Percent,
   Ruler,
   Shield,
   UserCircle,
@@ -34,34 +35,37 @@ export interface ModuleCategory {
   items: ModuleItem[];
 }
 
-const ALL: readonly UserRole[] = ['admin', 'marketing'] as const;
+const ALL: readonly UserRole[] = ['admin', 'marketing', 'vendedor', 'taller'] as const;
 const ADMIN_ONLY: readonly UserRole[] = ['admin'] as const;
+const CATALOG: readonly UserRole[] = ['admin', 'marketing'] as const;
+const SALES: readonly UserRole[] = ['admin', 'marketing', 'vendedor'] as const;
+const COUPONS: readonly UserRole[] = ['admin', 'marketing'] as const;
 
 export const moduleTree: ModuleCategory[] = [
   {
     id: 'inicio',
     title: 'Inicio',
     items: [
-      { label: 'Dashboard', path: '/admin/inicio', icon: Home, roles: ALL },
+      { label: 'Dashboard', path: '/admin/inicio', icon: Home, roles: SALES },
     ],
   },
   {
     id: 'catalogo',
     title: 'Catalogo',
     items: [
-      { label: 'Productos', path: '/admin/productos', icon: Package, roles: ALL },
+      { label: 'Productos', path: '/admin/productos', icon: Package, roles: CATALOG },
       {
         label: 'Categorias',
         path: '/admin/categorias',
         icon: Layers,
-        roles: ALL,
+        roles: CATALOG,
         stubNote: 'Edicion de categorias. Modulo planificado para la Fase 1 extendida.',
       },
       {
         label: 'Guia de tallas',
         path: '/admin/guia-tallas',
         icon: Ruler,
-        roles: ALL,
+        roles: CATALOG,
       },
     ],
   },
@@ -69,8 +73,9 @@ export const moduleTree: ModuleCategory[] = [
     id: 'ventas',
     title: 'Ventas',
     items: [
-      { label: 'Pedidos', path: '/admin/ventas', icon: ClipboardList, roles: ALL },
-      { label: 'Nuevo pedido', path: '/admin/ventas/nuevo', icon: PlusCircle, roles: ALL },
+      { label: 'Ventas', path: '/admin/ventas', icon: ClipboardList, roles: SALES },
+      { label: 'Nuevo pedido', path: '/admin/ventas/nuevo', icon: PlusCircle, roles: SALES },
+      { label: 'Cupones', path: '/admin/cupones', icon: Percent, roles: COUPONS },
     ],
   },
   {
@@ -81,7 +86,7 @@ export const moduleTree: ModuleCategory[] = [
         label: 'Clientes',
         path: '/admin/clientes',
         icon: Users,
-        roles: ALL,
+        roles: SALES,
       },
     ],
   },

@@ -92,10 +92,12 @@ export function InviteUserModal({ open, onClose }: Props) {
         <FormField
           label="Rol"
           required
-          hint="Admin puede gestionar usuarios; marketing solo catalogo y pedidos."
+          hint="Admin gestiona todo; marketing trabaja catalogo y ventas; vendedor solo ventas; taller tiene acceso limitado."
         >
           <SelectInput value={role} onChange={(e) => setRole(e.target.value as UserRole)}>
             <option value="marketing">Marketing</option>
+            <option value="vendedor">Vendedor</option>
+            <option value="taller">Taller</option>
             <option value="admin">Administrador</option>
           </SelectInput>
         </FormField>

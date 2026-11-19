@@ -20,6 +20,7 @@ export interface OrderInput {
   items: OrderItemInput[];
   paidAmount?: string;
   confirm?: boolean;
+  couponCode?: string;
 }
 
 export interface OrderItemDto {
@@ -44,13 +45,32 @@ export interface OrderDto {
   status: OrderStatus;
   totalAmount: string;
   paidAmount: string;
+  couponCode: string | null;
+  discountAmount: string;
   notes: string | null;
   items: OrderItemDto[];
   createdAt: string;
   confirmedAt: string | null;
   deliveredAt: string | null;
 }
-export type UserRole = 'admin' | 'marketing';
+export type UserRole = 'admin' | 'marketing' | 'vendedor' | 'taller';
+
+export type CouponType = 'percent' | 'fixed';
+
+export interface CouponDto {
+  id: string;
+  code: string;
+  type: CouponType;
+  value: string;
+  minimumAmount: string;
+  usageLimit: number | null;
+  usedCount: number;
+  startsAt: string | null;
+  expiresAt: string | null;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
 
 export interface CategoryDto {
   id: string;
@@ -88,6 +108,7 @@ export interface SessionUser {
   email: string;
   name: string;
   role: UserRole;
+  avatarUrl: string | null;
 }
 
 export interface LoginResponse {

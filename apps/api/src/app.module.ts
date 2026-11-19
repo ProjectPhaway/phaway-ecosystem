@@ -7,6 +7,7 @@ import { AccountModule } from './account/account.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { AuthModule } from './auth/auth.module';
 import { CatalogModule } from './catalog/catalog.module';
+import { CouponsModule } from './coupons/coupons.module';
 import { CustomersModule } from './customers/customers.module';
 import { HealthController } from './health/health.controller';
 import { MailerModule } from './mailer/mailer.module';
@@ -29,6 +30,7 @@ import { UsersModule } from './users/users.module';
     AccountModule,
     AnalyticsModule,
     CatalogModule,
+    CouponsModule,
     CustomersModule,
     UploadsModule,
     OrdersModule,

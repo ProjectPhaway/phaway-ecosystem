@@ -53,7 +53,7 @@ function Hero() {
       <div aria-hidden="true" className="drift pointer-events-none absolute -left-32 top-24 size-[32rem] rounded-full bg-spark-300/50 blur-3xl" />
       <div aria-hidden="true" className="drift pointer-events-none absolute right-10 bottom-0 size-80 rounded-full bg-mist blur-3xl" />
 
-      <Wing className="pointer-events-none absolute -right-[20%] top-10 w-[100%] opacity-[0.08] lg:-right-[5%] lg:top-1/2 lg:w-[46%] lg:-translate-y-1/2 lg:opacity-100" />
+      <Wing className="pointer-events-none absolute -right-[20%] top-10 w-[80%] opacity-[0.08] lg:-right-[2%] lg:top-1/3 lg:w-[46%] lg:-translate-y-1/2 lg:opacity-100" />
 
       <div className="relative mx-auto max-w-[90rem] px-4 pb-14 pt-16 sm:px-8 md:pb-24 md:pt-24">
         <span className="inline-flex items-center gap-2 border border-spark/40 bg-paper/80 px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-spark">

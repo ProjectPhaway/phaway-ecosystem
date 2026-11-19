@@ -27,6 +27,8 @@ const CATEGORIES = [
 const USERS: { envPrefix: string; role: UserRole; name: string }[] = [
   { envPrefix: 'ADMIN', role: UserRole.admin, name: 'Administrador' },
   { envPrefix: 'MARKETING', role: UserRole.marketing, name: 'Marketing' },
+  { envPrefix: 'VENDEDOR', role: UserRole.vendedor, name: 'Vendedor' },
+  { envPrefix: 'TALLER', role: UserRole.taller, name: 'Taller' },
 ];
 
 async function main() {

@@ -70,6 +70,8 @@ model Order {
   status        OrderStatus @default(pending)
   totalAmount   Decimal     @db.Decimal(10, 2)
   paidAmount    Decimal     @default(0) @db.Decimal(10, 2)
+  couponCode    String?
+  discountAmount Decimal    @default(0) @db.Decimal(10, 2)
   notes         String?
   items         OrderItem[]
   createdAt     DateTime    @default(now())
@@ -90,9 +92,34 @@ model OrderItem {
   snapshotName String
 }
 
+enum CouponType {
+  percent
+  fixed
+}
+
+model Coupon {
+  id              String     @id @default(cuid())
+  code            String     @unique
+  type            CouponType
+  value           Decimal    @db.Decimal(10, 2)
+  minimumAmount   Decimal    @default(0) @db.Decimal(10, 2)
+  usageLimit      Int?
+  usedCount       Int        @default(0)
+  startsAt        DateTime?
+  expiresAt       DateTime?
+  isActive        Boolean    @default(true)
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  @@index([isActive])
+  @@index([expiresAt])
+}
+
 enum UserRole {
   admin
   marketing
+  vendedor
+  taller
 }
 
 model User {
@@ -101,6 +128,7 @@ model User {
   passwordHash    String
   role            UserRole
   name            String
+  avatarUrl       String?
   isActive        Boolean              @default(true)
   createdAt       DateTime             @default(now())
   resetTokens     PasswordResetToken[]

@@ -26,6 +26,7 @@ export function NewOrderPage() {
   const [customerPhone, setCustomerPhone] = useState('');
   const [notes, setNotes] = useState('');
   const [paidAmount, setPaidAmount] = useState('');
+  const [couponCode, setCouponCode] = useState('');
   const [confirm, setConfirm] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [customerOpen, setCustomerOpen] = useState(false);
@@ -85,6 +86,7 @@ export function NewOrderPage() {
       items: lines.map((l) => ({ variantId: l.variant.id, quantity: l.quantity })),
       paidAmount: paidAmount.trim() || undefined,
       confirm,
+      couponCode: couponCode.trim().toUpperCase() || undefined,
     };
     try {
       const order = await create.mutateAsync(input);
@@ -236,6 +238,13 @@ export function NewOrderPage() {
               <span className="text-sm font-semibold">Total</span>
               <span className="text-2xl font-bold tabular-nums">{formatPrice(total || 0)}</span>
             </div>
+            <FormField label="Codigo de descuento · opcional">
+              <TextInput
+                value={couponCode}
+                onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                placeholder="Ej: BIENVENIDO10"
+              />
+            </FormField>
             <FormField label="Adelanto recibido · S/ (vacío = 0)">
               <TextInput
                 className="tabular-nums"

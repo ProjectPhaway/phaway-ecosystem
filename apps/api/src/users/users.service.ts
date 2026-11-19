@@ -167,6 +167,20 @@ export class UsersService {
     return { ...user, createdAt: user.createdAt.toISOString() };
   }
 
+  async setRole(targetId: string, requesterId: string, role: UserRole): Promise<AdminUserDto> {
+    if (targetId === requesterId) {
+      throw new ForbiddenException('No podes cambiar tu propio rol.');
+    }
+    const existing = await this.prisma.user.findUnique({ where: { id: targetId } });
+    if (!existing) throw new NotFoundException('Usuario no encontrado.');
+    const user = await this.prisma.user.update({
+      where: { id: targetId },
+      data: { role },
+      select: { id: true, email: true, name: true, role: true, isActive: true, createdAt: true },
+    });
+    return { ...user, createdAt: user.createdAt.toISOString() };
+  }
+
   async remove(targetId: string, requesterId: string): Promise<void> {
     if (targetId === requesterId) {
       throw new ForbiddenException('No podes eliminar tu propia cuenta.');

@@ -87,17 +87,23 @@ export class OrdersService {
       new Prisma.Decimal(0),
     );
     const paid = new Prisma.Decimal(dto.paidAmount ?? 0);
-    this.assertPaid(paid, total);
-
     return this.prisma.$transaction(async (tx) => {
+      const coupon = dto.couponCode
+        ? await this.resolveCoupon(tx, dto.couponCode, total)
+        : null;
+      const discount = coupon?.discount ?? new Prisma.Decimal(0);
+      const payable = total.sub(discount);
+      this.assertPaid(paid, payable);
       const order = await tx.order.create({
         data: {
           orderNumber: this.newOrderNumber(),
           customerName: dto.customerName,
           customerPhone: dto.customerPhone,
           notes: dto.notes?.trim() || null,
-          totalAmount: total,
+          totalAmount: payable,
           paidAmount: paid,
+          couponCode: coupon?.code ?? null,
+          discountAmount: discount,
           items: { create: lines },
         },
       });
@@ -208,6 +214,43 @@ export class OrdersService {
     for (const i of items)
       map.set(i.variantId, (map.get(i.variantId) ?? 0) + i.quantity);
     return [...map].map(([variantId, quantity]) => ({ variantId, quantity }));
+  }
+
+  private async resolveCoupon(
+    tx: Tx,
+    code: string,
+    subtotal: Prisma.Decimal,
+  ): Promise<{ code: string; discount: Prisma.Decimal }> {
+    const normalized = code.trim().toUpperCase();
+    const coupon = await tx.coupon.findUnique({ where: { code: normalized } });
+    if (!coupon || !coupon.isActive) {
+      throw new BadRequestException('El codigo de descuento no es valido.');
+    }
+    const now = new Date();
+    if (coupon.startsAt && coupon.startsAt > now) {
+      throw new BadRequestException('El codigo de descuento aun no esta vigente.');
+    }
+    if (coupon.expiresAt && coupon.expiresAt < now) {
+      throw new BadRequestException('El codigo de descuento ya vencio.');
+    }
+    if (coupon.usageLimit !== null && coupon.usedCount >= coupon.usageLimit) {
+      throw new BadRequestException('El codigo de descuento ya alcanzo su limite de usos.');
+    }
+    if (subtotal.lt(coupon.minimumAmount)) {
+      throw new BadRequestException(
+        `El pedido debe superar ${coupon.minimumAmount.toFixed(2)} para usar este codigo.`,
+      );
+    }
+    const discount =
+      coupon.type === 'percent'
+        ? subtotal.mul(coupon.value).div(100)
+        : coupon.value;
+    const finalDiscount = discount.gt(subtotal) ? subtotal : discount;
+    await tx.coupon.update({
+      where: { id: coupon.id },
+      data: { usedCount: { increment: 1 } },
+    });
+    return { code: coupon.code, discount: finalDiscount };
   }
 
   private assertPaid(paid: Prisma.Decimal, total: Prisma.Decimal) {

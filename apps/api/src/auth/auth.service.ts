@@ -47,6 +47,7 @@ export class AuthService {
         email: user.email,
         name: user.name,
         role: user.role,
+        avatarUrl: user.avatarUrl,
       },
     };
   }
@@ -54,7 +55,7 @@ export class AuthService {
   async me(userId: string) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
-      select: { id: true, email: true, name: true, role: true, isActive: true },
+      select: { id: true, email: true, name: true, role: true, avatarUrl: true, isActive: true },
     });
     if (!user?.isActive) throw new UnauthorizedException();
     return user;

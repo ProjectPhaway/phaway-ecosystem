@@ -10,13 +10,15 @@ import { ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { Roles, RolesGuard } from '../auth/roles.guard';
 import {
   ALLOWED_IMAGE_TYPES,
   MAX_IMAGE_BYTES,
   UploadsService,
 } from './uploads.service';
 
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles('admin', 'marketing')
 @ApiTags('uploads')
 @Controller('admin/uploads')
 export class UploadsController {

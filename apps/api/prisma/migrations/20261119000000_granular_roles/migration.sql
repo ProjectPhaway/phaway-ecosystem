@@ -1,0 +1,2 @@
+ALTER TYPE "UserRole" ADD VALUE IF NOT EXISTS 'vendedor';
+ALTER TYPE "UserRole" ADD VALUE IF NOT EXISTS 'taller';

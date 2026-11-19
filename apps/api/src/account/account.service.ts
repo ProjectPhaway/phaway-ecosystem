@@ -40,4 +40,13 @@ export class AccountService {
         this.log.error(`No se pudo notificar cambio de contrasena a ${user.email}: ${e}`),
       );
   }
+
+  async setProfilePhoto(userId: string, avatarUrl: string | null): Promise<void> {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user?.isActive) throw new UnauthorizedException();
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { avatarUrl },
+    });
+  }
 }

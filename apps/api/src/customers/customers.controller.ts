@@ -2,10 +2,12 @@ import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import type { CustomerDetailDto, CustomerSummaryDto } from '@phaway/shared';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { Roles, RolesGuard } from '../auth/roles.guard';
 import { CustomersService } from './customers.service';
 
 @ApiTags('clientes')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles('admin', 'marketing', 'vendedor')
 @Controller('admin/customers')
 export class CustomersController {
   constructor(private readonly customers: CustomersService) {}

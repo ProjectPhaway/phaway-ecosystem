@@ -11,6 +11,11 @@ export class InviteUserDto {
   @MaxLength(80)
   name!: string;
 
-  @IsIn(['admin', 'marketing'], { message: 'Rol invalido' })
+  @IsIn(['admin', 'marketing', 'vendedor', 'taller'], { message: 'Rol invalido' })
+  role!: UserRole;
+}
+
+export class SetUserRoleDto {
+  @IsIn(['admin', 'marketing', 'vendedor', 'taller'], { message: 'Rol invalido' })
   role!: UserRole;
 }

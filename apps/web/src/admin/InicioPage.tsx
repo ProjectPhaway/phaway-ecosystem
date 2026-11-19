@@ -4,12 +4,15 @@ import {
   ClipboardList,
   Clock,
   DollarSign,
+  Download,
   Package,
   PackagePlus,
   PlusCircle,
   Receipt,
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import { toast } from 'sonner';
+import { ApiError, api } from '../lib/api-client';
 import { Link } from 'react-router';
 import {
   Bar,
@@ -71,8 +74,34 @@ function formatDay(iso: string): string {
 export function InicioPage() {
   const session = useSession();
   const [range, setRange] = useState<RangeOption>(30);
+  const [report, setReport] = useState<
+    'daily-sales' | 'top-products' | 'orders-by-status' | 'revenue-by-category' | 'low-stock'
+  >('daily-sales');
+  const [exporting, setExporting] = useState(false);
 
   const firstName = session?.user.name.split(' ')[0] ?? '';
+
+  const exportCsv = async () => {
+    setExporting(true);
+    try {
+      const result = await api.exportAnalytics(report, range);
+      const url = URL.createObjectURL(result.blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = result.filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      toast.success('Reporte CSV descargado');
+    } catch (e) {
+      toast.error('No se pudo exportar', {
+        description: e instanceof ApiError ? e.message : undefined,
+      });
+    } finally {
+      setExporting(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -81,7 +110,34 @@ export function InicioPage() {
           <p className="text-sm text-graphite">Bienvenido{firstName ? `, ${firstName}` : ''}</p>
           <h1 className="mt-1 text-2xl font-bold">Inicio</h1>
         </div>
-        <RangePicker value={range} onChange={setRange} />
+        <div className="flex flex-wrap items-center gap-2">
+          <select
+            value={report}
+            onChange={(e) =>
+              setReport(
+                e.target.value as
+                  | 'daily-sales'
+                  | 'top-products'
+                  | 'orders-by-status'
+                  | 'revenue-by-category'
+                  | 'low-stock',
+              )
+            }
+            className="rounded-lg border border-line bg-paper px-3 py-1.5 text-xs font-semibold"
+            aria-label="Tipo de reporte CSV"
+          >
+            <option value="daily-sales">Ventas diarias</option>
+            <option value="top-products">Top productos</option>
+            <option value="orders-by-status">Pedidos por estado</option>
+            <option value="revenue-by-category">Ingresos por categoria</option>
+            <option value="low-stock">Stock bajo</option>
+          </select>
+          <button type="button" onClick={() => void exportCsv()} disabled={exporting} className="btn btn-outline">
+            <Download className="size-4" />
+            {exporting ? 'Exportando…' : 'CSV'}
+          </button>
+          <RangePicker value={range} onChange={setRange} />
+        </div>
       </header>
 
       <Kpis />

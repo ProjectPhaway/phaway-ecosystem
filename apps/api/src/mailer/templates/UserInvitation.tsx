@@ -4,7 +4,7 @@ import { BaseLayout, emailStyles } from './BaseLayout';
 export interface UserInvitationProps {
   invitedBy: string; // nombre del admin que invita
   invitedByEmail: string;
-  role: 'admin' | 'marketing';
+  role: 'admin' | 'marketing' | 'vendedor' | 'taller';
   inviteUrl: string;
   expiresDays: number;
 }
@@ -12,6 +12,8 @@ export interface UserInvitationProps {
 const roleLabel: Record<UserInvitationProps['role'], string> = {
   admin: 'Administrador',
   marketing: 'Marketing',
+  vendedor: 'Vendedor',
+  taller: 'Taller',
 };
 
 export function UserInvitation({

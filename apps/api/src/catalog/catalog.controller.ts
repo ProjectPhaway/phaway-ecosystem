@@ -10,6 +10,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { Roles, RolesGuard } from '../auth/roles.guard';
 import { ApiTags } from '@nestjs/swagger';
 import { CatalogService } from './catalog.service';
 import {
@@ -41,7 +42,8 @@ export class CatalogController {
 }
 
 /** Endpoints del panel admin (requieren login). */
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles('admin', 'marketing')
 @ApiTags('catalogo admin')
 @Controller('admin/products')
 export class AdminProductsController {
